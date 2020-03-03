@@ -1,0 +1,3 @@
+floppya: 1_44="./system.img", status=inserted
+boot: floppy
+display_library: x, options="gui_debug"
