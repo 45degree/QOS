@@ -1,3 +1,7 @@
-floppya: 1_44="./system.img", status=inserted
+megs: 32
+
+floppya: 1_44="./output/system.img", status=inserted
+
 boot: floppy
+
 display_library: x, options="gui_debug"
