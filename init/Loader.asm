@@ -13,8 +13,8 @@ OffsetOfKernelFile      equ 0H                     ; kernel.bin被加载到的�
 BaseOfKernelFilePhyAddr	equ	BaseOfKernelFile * 10h ; kernel.bin被加载到的物理内存地址
 KernelEntryPointPhyAddr	equ	030400h
 
-PageDirBase             equ 200000h	               ; 页目录开始地址: 2M
-PageTblBase             equ 201000h	               ; 页表开始地址:   2M + 4K
+PageDirBase             equ 100000h	               ; 页目录开始地址: 1M
+PageTblBase             equ 101000h	               ; 页表开始地址:   1M + 4K
 
 jmp LABEL_START
 
@@ -131,6 +131,8 @@ LABEL_NO_KERNELBIN:
     jmp $
 
 ; 开始加载kernel.bin
+; TODO
+; kernel.bin过大会读取失败, 由于bx的原因导致只能读取64kb
 LABEL_FILENAME_FOUND:
     mov  ax, RootDirSectors
     and  di, 0FFF0H
@@ -330,12 +332,13 @@ LABEL_PM_START:
     mov  ax,  SelectorFlatRW
     mov  ds,  ax
     mov  es,  ax
+    mov  gs,  ax
     mov  fs,  ax
     mov  ss,  ax
     mov  esp, TopofStack
 
-    mov  ax,  SelectorVideo
-    mov  gs,  ax
+    ; mov  ax,  SelectorVideo
+    ; mov  gs,  ax
 
     call DispMemInfo
     call SetupPaging
@@ -417,9 +420,18 @@ DispAL:
     jmp	 .2
 .1:
     sub	 al, 0Ah
-      add	 al, 'A'
+    add	 al, 'A'
 .2:
-    mov	 [gs:edi], ax
+    ; 保存es的值
+    push es
+    push eax
+    ; 让es指向显存缓冲区选择子
+    mov  ax, SelectorVideo
+    mov  es, ax
+    pop  eax
+    mov	 [es:edi], ax
+    ; 恢复es寄存器
+    pop  es
     add	 edi, 2
 
     mov	 al, dl
@@ -462,7 +474,15 @@ DispInt:
     mov	 al, 'h'
     push edi
     mov	 edi, [dwDispPos]
-    mov	 [gs:edi], ax
+    
+    push es
+    push eax
+    mov  ax, SelectorVideo
+    mov  es, ax
+    pop  eax
+    mov	 [es:edi], ax
+    pop  es
+
     add	 edi, 4
     mov	 [dwDispPos], edi
     pop	 edi
@@ -506,7 +526,14 @@ DispStr:
     pop	 eax
     jmp	 .1
 .3:
-    mov	 [gs:edi], ax
+    push es
+    push eax
+
+    mov  ax, SelectorVideo
+    mov  es, ax
+    pop  eax
+    mov	 [es:edi], ax
+    pop  es
     add	 edi, 2
     jmp	 .1
 
@@ -595,7 +622,7 @@ MemCpy:
     push ecx
 
     mov  edi, [ebp + 8]     ; Destination
-    mov  esi, [ebp + 12]	; Source
+    mov  esi, [ebp + 12]    ; Source
     mov  ecx, [ebp + 16]	; Counter
 .1:
     cmp  ecx, 0		        ; 判断计数器

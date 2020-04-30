@@ -1,6 +1,13 @@
 output/*
 !output/Makefile
 !output/tools
+doc/
 
 # bochs调试产生的文件
 bx_enh_dbg.ini
+
+# compiledb 产生的文件
+compile_commands.json
+
+.clangd/
+.idea/

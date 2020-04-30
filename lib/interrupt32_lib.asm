@@ -1,10 +1,40 @@
-extern exception_handler
-extern spurious_irq
+%include "sconst.inc"
+%macro hwint_master 1
+    call save
+
+    ; 禁止当前中断
+    in  al, INT_M_CTLMASK
+    or  al, (1 << %1)
+    out INT_M_CTLMASK, al
+
+    ; 发送EOI, 以便继续接受中断
+    mov  al, EOI
+    out  INT_M_CTL, al
+
+    sti
+
+    push %1
+    call [irq_table + 4 * %1]
+    pop  ecx
+
+    cli
+
+    ; 恢复当前中断
+    in  al, INT_M_CTLMASK
+    and al, ~(1 << %1)
+    out INT_M_CTLMASK, al
+
+    ; 将栈顶元素弹出赋值给ip, 如果发生了中断重入跳到.restart_reenter_v2, 没有重入跳到.restart_v2
+    ret
+%endmacro
 
 [section .text]
-global core_memcpy
-global out_byte
-global in_byte
+extern save
+extern spurious_irq
+extern exception_handler
+extern irq_table
+
+; 中断处理
 global divide_error
 global single_step_exception
 global nmi
@@ -21,6 +51,8 @@ global stack_exception
 global general_protection
 global page_fault
 global copr_error
+
+; 异常处理
 global hwint00
 global hwint01
 global hwint02
@@ -38,87 +70,19 @@ global hwint13
 global hwint14
 global hwint15
 
-; ------------------------------------------------------------------------
-; 函数名： core_memcpy
-; 描述:   内存拷贝，仿 memcpy
-; c原型:  void* core_memcpy(void* es:pDest, void* ds:pSrc, int iSize);
-; ------------------------------------------------------------------------
-core_memcpy:
-    push ebp
-    mov  ebp, esp
-
-    push esi
-    push edi
-    push ecx
-
-    mov  edi, [ebp + 8]
-    mov  esi, [ebp + 12]
-    mov  ecx, [ebp + 16]
-
-.begin:
-    cmp  ecx, 0
-    jz   .end
-
-    mov  al,  [ds:esi]
-    mov  byte [es:edi], al
-    inc  edi
-    inc  esi
-
-    dec  ecx
-    jmp  .begin
-.end:
-    mov  eax, [ebp + 8]
-
-    pop  ecx
-    pop  edi
-    pop  esi
-    mov  esp, ebp  ;还原栈顶指针
-    pop  ebp
-
-    ret
-
-; ------------------------------------------------------------------------
-; 函数名： out_byte
-; 描述:   写端口
-; c原型:  void out_byte(u16 port, u8 value)
-; ------------------------------------------------------------------------
-out_byte:
-    mov  edx, [esp + 4]
-    mov  al,  [esp + 4 + 4]
-    out  dx,  al
-    nop  ; 一点延迟
-    nop
-    ret
-
-; ------------------------------------------------------------------------
-; 函数名： in_byte
-; 描述:   读端口
-; c原型:  u8 in_byte(u16 port)
-; ------------------------------------------------------------------------
-in_byte:
-    mov  edx, [esp + 4]
-    xor  eax, eax
-    in   al,  dx
-    nop
-    nop
-    ret
+global disable_int
+global enable_int
 
 ; ------------------------------------------------------------------------
 ; 中断处理函数
 ; ------------------------------------------------------------------------
 align 16
 hwint00:
-    push 0
-    call spurious_irq
-    add  esp, 4
-    hlt
+    hwint_master 0
 
 align 16
 hwint01:
-    push 1
-    call spurious_irq
-    add  esp, 4
-    hlt
+    hwint_master 1
 
 align 16
 hwint02:
@@ -279,3 +243,13 @@ exception:
     call exception_handler
     add  esp, 4 * 2
     hlt
+
+; 关闭中断接受
+disable_int:
+    cli
+    ret
+
+; 打开中断接受
+enable_int:
+    sti
+    ret

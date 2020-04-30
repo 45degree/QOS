@@ -1,4 +1,4 @@
-megs: 32
+megs: 500
 
 floppya: 1_44="./output/system.img", status=inserted
 

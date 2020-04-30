@@ -1,19 +1,19 @@
-[section .data]
-dis_pose dd 0    ; 光标当前位置
-
-; 导出函数
-global _disp_str
-global _disp_pose_set
-global _disp_color_str
+; [section .data]
+; display_pose dd 0    ; 光标当前位置
+%include "sconst.inc"
+extern display_pose
 
 [section .text]
+; 导出函数
+global _display_str
+global _display_color_str
 
 ; ------------------------------------------------------------------------
-; 函数名:   _disp_str
-; 描述:     显示字符串, 字符串显示位置由dis_pose决定
-; c函数原型: void disp_str(chat* str)
+; 函数名:   _display_str
+; 描述:     显示字符串, 字符串显示位置由display_pose决定
+; c函数原型: void display_str(chat* str)
 ; ------------------------------------------------------------------------
-_disp_str:
+_display_str:
     push ebp
     mov  ebp, esp
     push esi
@@ -21,7 +21,7 @@ _disp_str:
     
     mov  ah, 0FH ; 黑底白字
     mov  esi, [ebp + 8]
-    mov  edi, [dis_pose]
+    mov  edi, [display_pose]
 .begin:
     lodsb
     test al, al   ; 判断是否为字符串结尾
@@ -40,11 +40,18 @@ _disp_str:
     pop  eax
     jmp  .begin
 .show:
-    mov  [gs:edi], ax
+    push es
+    push eax
+    mov  ax, SElECTOR_VIDEO
+    mov  es, ax
+    pop  eax
+    mov  [es:edi], ax
+    pop  es
+
     add  edi, 2
     jmp  .begin
 .end:
-    mov  dword [dis_pose], edi
+    mov  dword [display_pose], edi
 
     pop  edi
     pop  esi
@@ -53,11 +60,11 @@ _disp_str:
     ret
 
 ; ------------------------------------------------------------------------
-; 函数名:   _disp_color_str
-; 描述:     显示有颜色的字符串, 字符串显示位置由dis_pose决定
-; c函数原型: void _disp_color_str(chat* str, u8 color)
+; 函数名:   _display_color_str
+; 描述:     显示有颜色的字符串, 字符串显示位置由display_pose决定
+; c函数原型: void _display_color_str(chat* str, u8 color)
 ; ------------------------------------------------------------------------
-_disp_color_str:
+_display_color_str:
     push ebp
     mov  ebp, esp
     push esi
@@ -65,7 +72,7 @@ _disp_color_str:
     
     mov  ah,  [ebp + 12]
     mov  esi, [ebp + 8]
-    mov  edi, [dis_pose]
+    mov  edi, [display_pose]
 .begin:
     lodsb
     test al, al   ; 判断是否为字符串结尾
@@ -84,11 +91,18 @@ _disp_color_str:
     pop  eax
     jmp  .begin
 .show:
-    mov  [gs:edi], ax
+    push es
+    push eax
+    mov  ax, SElECTOR_VIDEO
+    mov  es, ax
+    pop  eax
+    mov  [es:edi], ax
+    pop  es
+
     add  edi, 2
     jmp  .begin
 .end:
-    mov  dword [dis_pose], edi
+    mov  dword [display_pose], edi
 
     pop  edi
     pop  esi
@@ -96,14 +110,3 @@ _disp_color_str:
     pop  ebp
     ret
 
-; ------------------------------------------------------------------------
-; 函数名： _dis_pose_set
-; 描述:   设置字符串光标的显示位置
-; c原型:  void dis_pose_set(int pose);
-; ------------------------------------------------------------------------
-_disp_pose_set:
-    push eax
-    mov  dword eax, [esp + 8]
-    mov  dword [dis_pose], eax
-    pop  eax
-    ret

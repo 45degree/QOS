@@ -1,54 +1,46 @@
 #include "interrupt.h"
+#include "packaging_asm32.h"
+#include "process.h"
 #include "show.h"
-#include "main.h"
 
-static const char* error_msg[] = {
-    "#DE Divide Error",
-    "#DB RESERVED",
-    "--  NMI Interrupt --",
-    "#BP Breakpoint",
-    "#OF Overflow",
-    "#BR BOUND Range Exceeded",
-    "#UD Invalid Opcode (Undefined Opcode)",
-    "#NM Device Not Available (No Math Coprocessor)",
-    "#DF Double Fault",
-    "Coprocessor Segment Overrun (reserved)",
-    "#TS Invalid TSS",
-    "#NP Segment Not Present",
-    "#SS Stack-Segment Fault",
-    "#GP General Protection",
-    "#PF Page Fault",
-    "--  (Intel reserved. Do not use.)  --",
-    "#MF x87 FPU Floating-Point Error (Math Fault)",
-    "#AC Alignment Check",
-    "#MC Machine Check",
-    "#XF SIMD Floating-Point Exception"
-};
+static const char *error_msg[] = {"#DE Divide Error",
+                                  "#DB RESERVED",
+                                  "--  NMI Interrupt --",
+                                  "#BP Breakpoint",
+                                  "#OF Overflow",
+                                  "#BR BOUND Range Exceeded",
+                                  "#UD Invalid Opcode (Undefined Opcode)",
+                                  "#NM Device Not Available (No Math Coprocessor)",
+                                  "#DF Double Fault",
+                                  "Coprocessor Segment Overrun (reserved)",
+                                  "#TS Invalid TSS",
+                                  "#NP Segment Not Present",
+                                  "#SS Stack-Segment Fault",
+                                  "#GP General Protection",
+                                  "#PF Page Fault",
+                                  "--  (Intel reserved. Do not use.)  --",
+                                  "#MF x87 FPU Floating-Point Error (Math Fault)",
+                                  "#AC Alignment Check",
+                                  "#MC Machine Check",
+                                  "#XF SIMD Floating-Point Exception"};
 
 /**
- * 初始化中断门
+ * 初始化i386中断门
  */
-static void init_idt_desc(unsigned char vector, u8 desc_type, int_handler handler, unsigned char privilege) {
-    GATE* p_gate = &idt[vector];
-    u32   base   = (u32)handler;
-    p_gate->offset_low  = base & 0xFFFF;
-    p_gate->selector    = SELECTOR_KERNEL_CS;
-    p_gate->dcount      = 0;
-    p_gate->attr        = desc_type | (privilege << 5);
+static void init_idt_desc(unsigned char vector, u8 desc_type, int_handler handler,
+                          enum privilege privilege) {
+    GATE *p_gate = &idt[vector];
+    u32 base = (u32)handler;
+    p_gate->offset_low = base & 0xFFFF;
+    p_gate->selector = SELECTOR_KERNEL_CS;
+    p_gate->dcount = 0;
+    p_gate->attr = desc_type | (privilege << 5);
     p_gate->offset_high = (base >> 16) & 0xFFFF;
 }
 
-static void init_descriptor(DESCRIPTOR *p_desc, u32 base, u32 limit, u16 attribute) {
-    p_desc->limit_low = limit & 0x0FFFF;
-    p_desc->base_low  = base  & 0x0FFFF;
-    p_desc->base_mid  = (base >> 16) & 0x0FF;
-    p_desc->attr1     = attribute  & 0xFF;
-    p_desc->limit_high_attr2 = ((limit >> 16) & 0x0F) | (attribute >> 8) & 0xF0;
-    p_desc->base_high = (base >> 24) & 0x0FF;
-}
-
 /**
- * 初始化8259A芯片
+ * 初始化8259A芯片, 打开时钟中断, 并设置外部中断的中断默认处理函数
+ * @note 设置了中断的处理函数，但是并没有使中断生效
  */
 void init_8259A() {
     out_byte(INT_M_CTL, 0x11);
@@ -59,44 +51,68 @@ void init_8259A() {
     out_byte(INT_S_CTLMASK, 0x2);
     out_byte(INT_M_CTLMASK, 0x1);
     out_byte(INT_S_CTLMASK, 0x1);
-    out_byte(INT_M_CTLMASK, 0xFD);
+
+    // 打开时钟中断
+    out_byte(INT_M_CTLMASK, 0xFE);
     out_byte(INT_S_CTLMASK, 0xFF);
+
+    // 设置外部中断的中断默认处理函数
+    for (int i = 0; i < NR_IRQ; i++) { irq_table[i] = spurious_irq; }
 }
 
 /**
- * 中断处理函数
+ * 在外部可屏蔽中断处理函数表中设置相应的处理函数
+ * @note 在设置了处理函数的同时屏蔽了相应的中断, 如要打开执行enable_irq
+ * @see irq_table enable_irq disable_irq
+ */
+void put_irq_handler(int irq, irq_handle handler) {
+    disable_irq(irq);
+    irq_table[irq] = handler;
+}
+
+void disable_irq(int irq) {
+    if (irq < 8)
+        out_byte(INT_M_CTLMASK, in_byte(INT_M_CTLMASK) | (1 << irq));
+    else
+        out_byte(INT_S_CTLMASK, in_byte(INT_S_CTLMASK) | (1 << irq));
+}
+
+void enable_irq(int irq) {
+    if (irq < 8)
+        out_byte(INT_M_CTLMASK, in_byte(INT_M_CTLMASK) & ~(1 << irq));
+    else
+        out_byte(INT_S_CTLMASK, in_byte(INT_S_CTLMASK) & ~(1 << irq));
+}
+
+/**
+ * 通用外部中断处理函数, 在屏幕中打印相应的外部中断号
  */
 void spurious_irq(int irq) {
-    disp_str("spurious irq: ");
-    disp_int(irq);
-    disp_str("\n");
+    display_str("spurious irq: ");
+    display_int(irq);
+    display_str("\n");
 }
 
-/**
- * 异常处理函数
- */
 void exception_handler(int vec_no, int err_code, int eip, int cs, int eflags) {
     int i;
     int text_color = 0x74;
-    disp_pose_set(0);
-    for(int i = 0; i < 80 * 5; i++) {
-        disp_str(" ");
-    }
-    disp_pose_set(0);
+    display_pose_set(0);
+    for (int i = 0; i < 80 * 5; i++) { display_str(" "); }
+    display_pose_set(0);
 
-    disp_color_str("Exception! -->", text_color);
-    disp_color_str(error_msg[vec_no], text_color);
-    disp_color_str("\n\n", text_color);
-    disp_color_str("EFLAGS:", text_color);
-    disp_int(eflags);
-    disp_color_str("CS:", text_color);
-    disp_int(cs);
-    disp_color_str("EIP:", text_color);
-    disp_int(eip);
+    display_color_str("Exception! -->", text_color);
+    display_color_str(error_msg[vec_no], text_color);
+    display_color_str("\n\n", text_color);
+    display_color_str("EFLAGS:", text_color);
+    display_int(eflags);
+    display_color_str("CS:", text_color);
+    display_int(cs);
+    display_color_str("EIP:", text_color);
+    display_int(eip);
 
-    if(err_code != 0xFFFFFFFF) {
-        disp_color_str("ERROR CODE:", text_color);
-        disp_int(err_code);
+    if (err_code != 0xFFFFFFFF) {
+        display_color_str("ERROR CODE:", text_color);
+        display_int(err_code);
     }
     return;
 }
@@ -105,46 +121,56 @@ void init_prot() {
     init_8259A();
 
     // 为异常设置相应的处理程序
-    init_idt_desc(INT_VECTOR_DIVIDE, DA_386IGate, divide_error, PRIVILEGE_KRNL);
-    init_idt_desc(INT_VECTOR_DEBUG, DA_386IGate, single_step_exception, PRIVILEGE_KRNL);
-    init_idt_desc(INT_VECTOR_NMI, DA_386IGate, nmi, PRIVILEGE_KRNL);
-    init_idt_desc(INT_VECTOR_BREAKPOINT, DA_386IGate, breakpoint_exception, PRIVILEGE_KRNL);
-    init_idt_desc(INT_VECTOR_OVERFLOW, DA_386IGate, overflow, PRIVILEGE_KRNL);
-    init_idt_desc(INT_VECTOR_BOUNDS, DA_386IGate, bounds_check, PRIVILEGE_KRNL);
-    init_idt_desc(INT_VECTOR_INVAL_OP, DA_386IGate, inval_opcode, PRIVILEGE_KRNL);
-    init_idt_desc(INT_VECTOR_COPROC_NOT, DA_386IGate, copr_not_avaliable, PRIVILEGE_KRNL);
-    init_idt_desc(INT_VECTOR_DOUBLE_FAULT, DA_386IGate, double_fault, PRIVILEGE_KRNL);
-    init_idt_desc(INT_VECTOR_COPROC_SEG, DA_386IGate, copr_seg_overrun, PRIVILEGE_KRNL);
-    init_idt_desc(INT_VECTOR_INVAL_TSS, DA_386IGate, inval_tss, PRIVILEGE_KRNL);
-    init_idt_desc(INT_VECTOR_STACK_FAULT, DA_386IGate, stack_exception, PRIVILEGE_KRNL);
-    init_idt_desc(INT_VECTOR_PROTECTION, DA_386IGate, general_protection, PRIVILEGE_KRNL);
-    init_idt_desc(INT_VECTOR_PAGE_FAULT, DA_386IGate, page_fault, PRIVILEGE_KRNL);
-    init_idt_desc(INT_VECTOR_COPROC_ERR, DA_386IGate, copr_error, PRIVILEGE_KRNL);
-    
-    // 为硬件中断设置相应的处理程序
-    init_idt_desc(INT_VECTOR_IRQ0 + 0, DA_386IGate, hwint00, PRIVILEGE_KRNL);
-    init_idt_desc(INT_VECTOR_IRQ0 + 1, DA_386IGate, hwint01, PRIVILEGE_KRNL);
-    init_idt_desc(INT_VECTOR_IRQ0 + 2, DA_386IGate, hwint02, PRIVILEGE_KRNL);
-    init_idt_desc(INT_VECTOR_IRQ0 + 3, DA_386IGate, hwint03, PRIVILEGE_KRNL);
-    init_idt_desc(INT_VECTOR_IRQ0 + 4, DA_386IGate, hwint04, PRIVILEGE_KRNL);
-    init_idt_desc(INT_VECTOR_IRQ0 + 5, DA_386IGate, hwint05, PRIVILEGE_KRNL);
-    init_idt_desc(INT_VECTOR_IRQ0 + 6, DA_386IGate, hwint06, PRIVILEGE_KRNL);
-    init_idt_desc(INT_VECTOR_IRQ0 + 7, DA_386IGate, hwint07, PRIVILEGE_KRNL);
-    init_idt_desc(INT_VECTOR_IRQ0 + 0, DA_386IGate, hwint08, PRIVILEGE_KRNL);
-    init_idt_desc(INT_VECTOR_IRQ0 + 1, DA_386IGate, hwint09, PRIVILEGE_KRNL);
-    init_idt_desc(INT_VECTOR_IRQ0 + 2, DA_386IGate, hwint10, PRIVILEGE_KRNL);
-    init_idt_desc(INT_VECTOR_IRQ0 + 3, DA_386IGate, hwint11, PRIVILEGE_KRNL);
-    init_idt_desc(INT_VECTOR_IRQ0 + 4, DA_386IGate, hwint12, PRIVILEGE_KRNL);
-    init_idt_desc(INT_VECTOR_IRQ0 + 5, DA_386IGate, hwint13, PRIVILEGE_KRNL);
-    init_idt_desc(INT_VECTOR_IRQ0 + 6, DA_386IGate, hwint14, PRIVILEGE_KRNL);
-    init_idt_desc(INT_VECTOR_IRQ0 + 7, DA_386IGate, hwint15, PRIVILEGE_KRNL);
+    init_idt_desc(int_vector_divide, da_i_gate_386, divide_error, privilege_kernel);
+    init_idt_desc(int_vector_debug, da_i_gate_386, single_step_exception, privilege_kernel);
+    init_idt_desc(int_vector_nmi, da_i_gate_386, nmi, privilege_kernel);
+    init_idt_desc(int_vector_breakpoint, da_i_gate_386, breakpoint_exception, privilege_kernel);
+    init_idt_desc(int_vector_overflow, da_i_gate_386, overflow, privilege_kernel);
+    init_idt_desc(int_vector_bound, da_i_gate_386, bounds_check, privilege_kernel);
+    init_idt_desc(int_vector_inval_op, da_i_gate_386, inval_opcode, privilege_kernel);
+    init_idt_desc(int_vector_coproc_not, da_i_gate_386, copr_not_avaliable, privilege_kernel);
+    init_idt_desc(int_vector_double_fault, da_i_gate_386, double_fault, privilege_kernel);
+    init_idt_desc(int_vector_coproc_seg, da_i_gate_386, copr_seg_overrun, privilege_kernel);
+    init_idt_desc(int_vector_inval_tss, da_i_gate_386, inval_tss, privilege_kernel);
+    init_idt_desc(int_vector_seg_not, da_i_gate_386, segment_not_present, privilege_kernel);
+    init_idt_desc(int_vector_stack_fault, da_i_gate_386, stack_exception, privilege_kernel);
+    init_idt_desc(int_vector_protection, da_i_gate_386, general_protection, privilege_kernel);
+    init_idt_desc(int_vector_page_fault, da_i_gate_386, page_fault, privilege_kernel);
+    init_idt_desc(int_vector_coproc_err, da_i_gate_386, copr_error, privilege_kernel);
 
-    init_descriptor(&gdt[INDEX_LDT_FIRST], vir2phys(seg2phys(SELECTOR_KERNEL_DS), proc_table[0].ldts),
-                    LDT_SIZE * sizeof(DESCRIPTOR) - 1, DA_LDT);
-    
+    // 为硬件中断设置相应的处理程序
+    init_idt_desc(INT_VECTOR_IRQ0 + 0, da_i_gate_386, hwint00, privilege_kernel);
+    init_idt_desc(INT_VECTOR_IRQ0 + 1, da_i_gate_386, hwint01, privilege_kernel);
+    init_idt_desc(INT_VECTOR_IRQ0 + 2, da_i_gate_386, hwint02, privilege_kernel);
+    init_idt_desc(INT_VECTOR_IRQ0 + 3, da_i_gate_386, hwint03, privilege_kernel);
+    init_idt_desc(INT_VECTOR_IRQ0 + 4, da_i_gate_386, hwint04, privilege_kernel);
+    init_idt_desc(INT_VECTOR_IRQ0 + 5, da_i_gate_386, hwint05, privilege_kernel);
+    init_idt_desc(INT_VECTOR_IRQ0 + 6, da_i_gate_386, hwint06, privilege_kernel);
+    init_idt_desc(INT_VECTOR_IRQ0 + 7, da_i_gate_386, hwint07, privilege_kernel);
+    init_idt_desc(INT_VECTOR_IRQ8 + 0, da_i_gate_386, hwint08, privilege_kernel);
+    init_idt_desc(INT_VECTOR_IRQ8 + 1, da_i_gate_386, hwint09, privilege_kernel);
+    init_idt_desc(INT_VECTOR_IRQ8 + 2, da_i_gate_386, hwint10, privilege_kernel);
+    init_idt_desc(INT_VECTOR_IRQ8 + 3, da_i_gate_386, hwint11, privilege_kernel);
+    init_idt_desc(INT_VECTOR_IRQ8 + 4, da_i_gate_386, hwint12, privilege_kernel);
+    init_idt_desc(INT_VECTOR_IRQ8 + 5, da_i_gate_386, hwint13, privilege_kernel);
+    init_idt_desc(INT_VECTOR_IRQ8 + 6, da_i_gate_386, hwint14, privilege_kernel);
+    init_idt_desc(INT_VECTOR_IRQ8 + 7, da_i_gate_386, hwint15, privilege_kernel);
+
+    init_idt_desc(INT_VECTOR_SYS_CALL, da_i_gate_386, sys_call, privilege_user);
+
+    /* 填充GDT中进程的LDT的描述符 */
     core_memcpy(&tss, 0, sizeof(tss));
     tss.ss0 = SELECTOR_KERNEL_DS;
-    init_descriptor(&gdt[INDEX_TSS], vir2phys(seg2phys(SELECTOR_KERNEL_DS), &tss),
-                    sizeof(tss) - 1, DA_386TSS);
+    init_descriptor(&gdt[selector_tss >> 3], vir2phys(seg2phys(SELECTOR_KERNEL_DS), (u32)&tss),
+                    sizeof(tss) - 1, da_tss_386);
     tss.iobase = sizeof(tss);
+
+    /* 填充GDT中进程的LDT的描述符 */
+    u16 selector_ldt = selector_ldt_first & SA_RPL_MASK & SA_TI_MASK;
+    for (int i = 0; i < NR_TASKS; i++) {
+        init_descriptor(&gdt[selector_ldt >> 3],
+                        vir2phys(seg2phys(SELECTOR_KERNEL_DS), (u32)proc_table[i].ldts),
+                        LDT_SIZE * sizeof(DESCRIPTOR) - 1, da_ldt);
+        selector_ldt += 1 << 3;
+    }
 }

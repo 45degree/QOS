@@ -23,31 +23,32 @@ static char* itoa(char* str, int num) {
     return str;
 }
 
-void disp_str(const char* message) {
-    _disp_str(message);
+void display_str(const char* message) {
+    _display_str(message);
     return;
 }
 
-void disp_pose_set(int position) {
-    int maxPose = 80 * 25;      // 每行80个字符，共25行
-    if (position > maxPose || position < 0) position = 0;
-    int realPose = position * 2;
-    _disp_pose_set(realPose);
+void display_pose_set(int position) {
+    display_pose = position;
     return;
 }
 
-void disp_color_str(const char* str, int TextColor) {
-    _disp_color_str(str, TextColor);
+void display_color_str(const char* str, int TextColor) {
+    _display_color_str(str, TextColor);
     return;
 }
 
-void disp_int(int input) {
+void display_int(int input) {
     char output[16];
     itoa(output, input);
-    disp_str(output);
+    display_str(output);
     return;
 }
 
-void __stack_chk_fail() {
-    disp_str("error");
+void display_clear() {
+    display_pose_set(0);
+    for (int i = 0; i < 80 * 25; i++) { display_str(" "); }
+    display_pose_set(0);
 }
+
+void __stack_chk_fail() { display_str("stack_chk_fail"); }
