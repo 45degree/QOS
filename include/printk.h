@@ -15,7 +15,7 @@ extern "C" {
  * @author 45degree
  * @since 0.01
  */
-int printk(const char* fmt, ...);
+int printk(const char* fmt, char* arg);
 
 #ifdef __cplusplus
 };

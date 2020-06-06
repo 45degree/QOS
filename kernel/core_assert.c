@@ -6,5 +6,5 @@ static void spin(char* function_name) {
 }
 
 void assert_failure(char* exp, char* file, char* basefile, int line) {
-    printk("");
+    printk("", "");
 }

@@ -9,7 +9,7 @@
 void testA() {
     int i = 0;
     while(1) {
-        printk("<Ticks:%x>", 12,13,14,15,16,17,18);
+        printk("<Ticks:%s>", "dsadas");
         milli_delay(200);
     }
 }
