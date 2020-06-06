@@ -7,8 +7,12 @@
  * @version 0.0.1
  */
 
-#ifndef GLOBAL_H
-#define GLOBAL_H
+#ifndef QOS_GLOBAL_H
+#define QOS_GLOBAL_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef unsigned int u32;
 typedef unsigned short u16;
@@ -149,17 +153,16 @@ enum selector_attribute {
     sa_TIG = 0,  //!< 设置TI为0, 代表选择子在GDT中
     sa_TIL = 4   //!< 设置TI为1, 代表选择子在LDT中
 };
-#define SA_RPL_MASK 0xFFFC //!< 选择子RPL掩码, 用于清空选择子的RPL
-#define SA_TI_MASK 0xFFFB  //!< 选择子TI掩码, 用于清空选择子的TI
+#define SA_RPL_MASK 0xFFFCu //!< 选择子RPL掩码, 用于清空选择子的RPL
+#define SA_TI_MASK 0xFFFBu //!< 选择子TI掩码, 用于清空选择子的TI
 
 #define RPL_KRNL sa_RPL0 //!< 内核段选择子RPL为0
 #define RPL_TASK sa_RPL1 //!< 任务段选择子RPL为1
 #define RPL_USER sa_RPL3 //!< 用户段选择子RPL为3
 
-#define NR_TASKS 1
 #define STACK_SIZE_TESTA 0x8000
-#define STACK_SIZE_TOTAL (STACK_SIZE_TESTA)
-typedef void* system_call;
+#define STACK_SIZE_TESTB 0x8000
+#define STACK_SIZE_TOTAL (STACK_SIZE_TESTA + STACK_SIZE_TESTB)
 
 /**
  * @brief  计算选择子对应的段描述符的基地址
@@ -205,4 +208,9 @@ extern void __stack_chk_fail_local();
 
 DESCRIPTOR gdt[GTD_SIZE]; //!< GDT表
 GATE idt[IDT_SIZE];       //!< idt表, 该表存储相应的中断门调用
+
+#ifdef __cplusplus
+};
+#endif
+
 #endif

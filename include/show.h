@@ -1,7 +1,11 @@
-#ifndef SHOW_H
-#define SHOW_H
+#ifndef QOS_SHOW_H
+#define QOS_SHOW_H
 
-#include <packaging_asm32.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "package_iA32/packaging_iA32.h"
 
 /*
  * e.g. MAKE_COLOR(BLUE, RED)
@@ -17,10 +21,14 @@
 #define BRIGHT 0x08              /* 0000 1000 */
 #define MAKE_COLOR(x, y) (x | y) /* MAKE_COLOR(Background,Foreground) */
 
-extern void display_str(const char* mes);
-extern void display_pose_set(int position);
+extern void display_str(const char* message);
 extern void display_color_str(const char* str, int TextColor);
 extern void display_int(int num);
 extern void display_clear();
+
+char* itoa(char* str, unsigned int num);
+#ifdef __cplusplus
+};
+#endif
 
 #endif

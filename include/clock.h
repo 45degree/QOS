@@ -1,5 +1,9 @@
-#ifndef CLOCK_H
-#define CLOCK_H
+#ifndef QOS_CLOCK_H
+#define QOS_CLOCK_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define TIMER0 0x40
 #define TIMER_MODE 0x43
@@ -14,5 +18,9 @@ extern void clock_handler(int irq);
 extern void init_clock();
 
 int ticks;
+
+#ifdef __cplusplus
+};
+#endif
 
 #endif

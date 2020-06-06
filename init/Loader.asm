@@ -134,6 +134,11 @@ LABEL_NO_KERNELBIN:
 ; TODO
 ; kernel.bin过大会读取失败, 由于bx的原因导致只能读取64kb
 LABEL_FILENAME_FOUND:
+    push dx
+    mov  dh, 5
+    call DispStrRealMode
+    pop  dx
+
     mov  ax, RootDirSectors
     and  di, 0FFF0H
 
@@ -152,6 +157,11 @@ LABEL_FILENAME_FOUND:
     mov  bx, OffsetOfKernelFile
     mov  ax, cx
 LABEL_GOON_LOADING_FILE:
+    push dx
+    mov  dh, 7
+    call DispStrRealMode
+    pop  dx
+
     mov  cl, 1
     mov  ch, 18
     mov  dl, 0
@@ -164,7 +174,19 @@ LABEL_GOON_LOADING_FILE:
     mov  dx, RootDirSectors
     add  ax, dx
     add  ax, DeltaSectorNo
-    add  bx, [BPB_BytsPerSec]
+    add  bx, [BPB_BytsPerSec]    ; 当文件大于64kb时会发生溢出
+    jnc  LABEL_GOON_LOADING_FILE ; 如果bx没有发生溢出(CF=0), 直接跳转
+
+    push dx
+    mov  dx, 6
+    call DispStrRealMode
+    pop  dx
+
+    push ax
+    mov  ax, es
+    add  ax, 0x1000              ; 溢出时改变es段地址, 跳过64KB
+    mov  es, ax
+    pop  ax
     jmp  LABEL_GOON_LOADING_FILE
 
 LABEL_FILE_LOADED:
@@ -206,6 +228,10 @@ Message1            db  "Ready.   "
 Message2            db  "No KERNEL"
                     db  "Mem Chk F"
                     db  "Mem Chk S"
+                    db  "KERNEL FD"
+                    db  "OVERFLOW "
+                    db  "LOAD KERN"
+                    db  "sdsdsds"
 MessageLength       equ 9
 
 ; ========================================================================

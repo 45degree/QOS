@@ -1,6 +1,6 @@
 megs: 500
 
-floppya: 1_44="./output/system.img", status=inserted
+floppya: 1_44="./build/linux/release/QOS.img", status=inserted
 
 boot: floppy
 

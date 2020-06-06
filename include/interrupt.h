@@ -6,8 +6,12 @@
  * @version 0.0.1
  */
 
-#ifndef INTERRUPT_H
-#define INTERRUPT_H
+#ifndef QOS_INTERRUPT_H
+#define QOS_INTERRUPT_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "global.h"
 
@@ -124,7 +128,7 @@ extern void put_irq_handler(int irq, irq_handle handler);
  * @author 45degree
  * @since 0.0.1
  */
-extern void init_prot();
+extern void init_port();
 
 /**
  * @brief  初始化8259A
@@ -140,5 +144,9 @@ extern void init_8259A();
  * @since 0.0.1
  */
 extern void spurious_irq(int irq);
+
+#ifdef __cplusplus
+};
+#endif
 
 #endif

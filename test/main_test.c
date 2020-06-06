@@ -3,11 +3,24 @@
 //
 
 #include "CuTest.h"
-
-#include "kernel_main.h"
-
 #include <stdio.h>
-int main() {
-    printf("你好");
-    return 0;
+
+CuSuite* StrUtilGetSuite();
+CuSuite* itoa_test();
+
+void RunAllTests(void) {
+    CuString *output = CuStringNew();
+    CuSuite* suite = CuSuiteNew();
+
+    CuSuiteAddSuite(suite, StrUtilGetSuite());
+    CuSuiteAddSuite(suite, itoa_test());
+
+    CuSuiteRun(suite);
+    CuSuiteSummary(suite, output);
+    CuSuiteDetails(suite, output);
+    printf("%s\n", output->buffer);
+}
+
+int main(void) {
+    RunAllTests();
 }

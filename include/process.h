@@ -6,10 +6,17 @@
  * @version 0.0.1
  */
 
-#ifndef PROC_H
-#define PROC_H
+#ifndef QOS_PROC_H
+#define QOS_PROC_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "global.h"
+
+#define NR_TASK 1
+#define NR_PROC 1
 
 /**
  * @brief 一个进程使用的寄存器的值
@@ -44,6 +51,7 @@ typedef struct s_proc {
     int priority;              //!< 进程的优先级
     u32 pid;                   //!< 进程pid
     char p_name[16];           //!< 进程名
+    int tty;                   //!< 进程运行所在的tty
 } PROCESS;
 
 typedef void (*test_f)();
@@ -59,7 +67,11 @@ typedef struct s_task {
  */
 extern void schedule();
 
-PROCESS proc_table[NR_TASKS];      //!< 进程列表, 存放所有要运行的进程
+PROCESS proc_table[NR_TASK + NR_PROC];      //!< 进程列表, 存放所有要运行的进程
 char task_stack[STACK_SIZE_TOTAL]; //!< 进程堆栈
+
+#ifdef __cplusplus
+};
+#endif
 
 #endif
