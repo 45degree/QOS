@@ -11,7 +11,7 @@
  * @return 最后一个格式化字符的结尾位置
  * @author 45degree
  * @since 0.01
- * @note 暂时只支持"%x"的格式化
+ * @note 暂时只支持"%x %c %s"的格式化
  */
 static int vsprintk(char* buf, const char* fmt, char* args) {
     char temp[256];
@@ -28,18 +28,18 @@ static int vsprintk(char* buf, const char* fmt, char* args) {
         case 'x':
             itoa(temp, *((int*)next_arg));
             core_strcpy(p, temp);
-            next_arg += 1;
+            next_arg += sizeof(char*);
             p += core_strlen(temp);
             break;
         case 'c':
             *p++ = *next_arg;
-            next_arg += 1;
+            next_arg += sizeof(char*);
             break;
         case 's':
             str = next_arg;
             core_strcpy(p, *str);
             int len = core_strlen(p);
-            next_arg += len;
+            next_arg += sizeof(char*);
             p += len;
             break;
         default:
@@ -49,10 +49,10 @@ static int vsprintk(char* buf, const char* fmt, char* args) {
     return (p - buf);
 }
 
-int printk(const char* fmt, char* arc) {
+int printk(const char* fmt, ...) {
     int i;
     char buf[256];
     char* arg = (&fmt) + 1;
     i = vsprintk(buf, fmt, arg);
-    write(buf, i);
+    printx(buf);
 }

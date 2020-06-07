@@ -21,3 +21,16 @@ void schedule() {
         }
     }
 }
+
+u32 ldt_seg_linear(PROCESS* p, int idx) {
+    DESCRIPTOR* desc = &p->ldts[idx];
+    return desc->base_high << 24 | desc->base_mid << 16 | desc->base_low;
+}
+
+
+u32 va2la(int pid, void* va) {
+    PROCESS* proc = &proc_table[pid];
+    u32 seg_base = ldt_seg_linear(proc, INDEX_LDT_RW);
+    u32 la = seg_base + (u32)va;
+    return la;
+}

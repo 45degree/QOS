@@ -117,6 +117,9 @@ enum selector {
 #define SELECTOR_KERNEL_DS selector_flat_rw //!< 内核数据段选择子
 #define LDT_SIZE 2                          //!< 每个LDT中描述符个数
 
+#define INDEX_LDT_C  0
+#define INDEX_LDT_RW 1
+
 enum descriptor_attribute {
     // 描述符类型值说明
     da_32 = 0x4000,       //!< 32位段
@@ -201,8 +204,6 @@ extern void init_descriptor(DESCRIPTOR* p_desc, u32 base, u32 limit,
  * @since 0.0.1
  */
 extern void global_init();
-
-extern int sys_get_ticks();
 
 extern void __stack_chk_fail_local();
 

@@ -21,6 +21,10 @@ extern "C" {
 #define BRIGHT 0x08              /* 0000 1000 */
 #define MAKE_COLOR(x, y) (x | y) /* MAKE_COLOR(Background,Foreground) */
 
+#define DEFAULT_CHAR_COLOR (MAKE_COLOR(BLACK, WHITE))
+#define GRAY_CHAR (MAKE_COLOR(BLACK, BLACK) | BRIGHT)
+#define RED_CHAR (MAKE_COLOR(BLUE, RED) | BRIGHT)
+
 extern void display_str(const char* message);
 extern void display_color_str(const char* str, int TextColor);
 extern void display_int(int num);

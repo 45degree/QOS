@@ -9,6 +9,11 @@ extern "C" {
 
 typedef void* system_call;
 
+/**
+ * @brief 
+ * 
+ * @return int 
+ */
 int sys_get_ticks();
 
 /**
@@ -23,6 +28,19 @@ int sys_get_ticks();
  * @note 该函数在汇编中调用
  */
 void sys_write(char* buf, int len, char* unused, PROCESS* proc);
+
+/**
+ * @brief 
+ * 
+ * @param __unused1 
+ * @param __unused2 
+ * @param s 
+ * @param proc 
+ * @return int 
+ */
+int sys_printx(int __unused1, int __unused2, char* s, PROCESS* proc);
+
+int sys_sendrec(int function, int src_dest, char* m, PROCESS* proc);
 
 #ifdef __cplusplus
 };

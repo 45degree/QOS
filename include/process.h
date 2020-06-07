@@ -18,6 +18,8 @@ extern "C" {
 #define NR_TASK 1
 #define NR_PROC 1
 
+#define proc2pid(x) (x - proc_table)
+
 /**
  * @brief 一个进程使用的寄存器的值
  */
@@ -66,6 +68,17 @@ typedef struct s_task {
  * @brief 进程调度函数
  */
 extern void schedule();
+
+/**
+ * @brief 计算进程某一段地址的基地址
+ * 
+ * @param p 进程
+ * @param idx 段序号
+ * @return u32 段地址
+ */
+extern u32 ldt_seg_linear(PROCESS* p, int idx);
+
+u32 va2la(int pid, void* va);
 
 PROCESS proc_table[NR_TASK + NR_PROC];      //!< 进程列表, 存放所有要运行的进程
 char task_stack[STACK_SIZE_TOTAL]; //!< 进程堆栈

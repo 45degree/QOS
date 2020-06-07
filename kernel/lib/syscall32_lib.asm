@@ -3,6 +3,7 @@
 _NR_get_ticks equ 0
 _NR_write equ 1
 _NR_sendrec equ 2
+_NR_printx equ 3
 
 INT_VECTOR_SYS_CALL equ 0x90
 
@@ -13,6 +14,7 @@ extern p_proc_ready
 global get_ticks
 global sys_call
 global write
+global printx
 
 bits 32
 [section .text]
@@ -33,6 +35,12 @@ sendrec:
     mov ebx, [esp + 4]  ; function
     mov ecx, [esp + 8]  ; src_dist
     mov edx, [esp + 12] ; p_msg
+    int INT_VECTOR_SYS_CALL
+    ret
+
+printx:
+    mov eax, _NR_printx
+    mov edx, [esp + 4]
     int INT_VECTOR_SYS_CALL
     ret
 

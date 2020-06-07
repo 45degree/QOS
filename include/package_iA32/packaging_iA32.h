@@ -279,6 +279,7 @@ int display_pose; //!< 屏幕显示位置
 extern void sys_call();
 extern int get_ticks();
 extern void write(char* buf, int len);
+extern void printx(char* buf);
 
 #ifdef __cplusplus
 };
