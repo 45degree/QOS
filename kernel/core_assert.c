@@ -8,7 +8,6 @@ static void spin(char* function_name) {
 
 void assert_failure(char* exp, char* file, char* basefile, int line) {
     printk("%c_assert (%s) failed: file: %s, base file: %s, ln %x", MAG_CH_ASSERT, exp, file, basefile, line);
-    // printk("%s_assert (%s) failed: file: %s, base file: %s, ln %x", "123", exp);
 
     spin("assertion failure()");
 

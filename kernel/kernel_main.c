@@ -5,10 +5,11 @@
 #include "process.h"
 #include "show.h"
 #include "tty/tty.h"
+#include "systask.h"
 
 void testA();
 
-TASK task_table[NR_TASK] = {{task_tty, STACK_SIZE_TESTA, "task_tty"}};
+TASK task_table[NR_TASK] = {{task_tty, STACK_SIZE_TESTA, "task_tty"}, {task_sys, STACK_SIZE_TESTA, "SYS"}};
 TASK user_proc_table[NR_PROC] = {{testA, STACK_SIZE_TESTA, "testA"}};
 
 int kernel_main() {
@@ -20,7 +21,8 @@ int kernel_main() {
     u16 selector_ldt = selector_ldt_first;
 
     proc_table[0].ticks = proc_table[0].priority = 100;
-    proc_table[1].ticks = proc_table[1].priority = 15;
+    proc_table[1].ticks = proc_table[1].priority = 100;
+    proc_table[2].ticks = proc_table[2].priority = 15;
 
     u8 privilege;
     u8 rpl;
@@ -59,6 +61,12 @@ int kernel_main() {
         p_proc->regs.eflags = eflags;
 
         p_proc->tty = 0;
+        p_proc->flags = 0;
+        p_proc->recvfrom = NO_TASK;
+        p_proc->sendto = NO_TASK;
+        p_proc->has_int_msg = 0;
+        p_proc->next_sending = 0;
+
         p_task_stack -= p_task->stacksize;
         p_proc++;
         p_task++;
@@ -66,8 +74,9 @@ int kernel_main() {
     }
     k_reenter = 0;
 
-    proc_table[0].tty = 0;
+    proc_table[0].tty = 2;
     proc_table[1].tty = 1;
+    proc_table[2].tty = 0;
 
     set_process_ready(proc_table);
     display_clear();

@@ -11,18 +11,13 @@ extern save
 extern sys_call_table
 extern p_proc_ready
 
-global get_ticks
-global sys_call
 global write
+global sendrec
 global printx
+global sys_call
 
 bits 32
 [section .text]
-get_ticks:
-    mov eax, _NR_get_ticks
-    int INT_VECTOR_SYS_CALL
-    ret
-
 write:
     mov eax, _NR_write
     mov ebx, [esp + 4]

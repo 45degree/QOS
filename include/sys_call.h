@@ -40,7 +40,7 @@ void sys_write(char* buf, int len, char* unused, PROCESS* proc);
  */
 int sys_printx(int __unused1, int __unused2, char* s, PROCESS* proc);
 
-int sys_sendrec(int function, int src_dest, char* m, PROCESS* proc);
+int sys_sendrec(int function, int src_dest, MESSAGE* m, PROCESS* proc);
 
 #ifdef __cplusplus
 };

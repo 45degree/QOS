@@ -16,6 +16,7 @@ extern "C" {
 
 #include "global.h"
 #include "process.h"
+#include "message.h"
 
 /**
  * @brief 得到屏幕的显示位置
@@ -144,8 +145,8 @@ extern void set_process_ready(PROCESS* process);
  */
 extern void restart();
 
-PROCESS* p_proc_ready; //!< 指向下一个要运行的进程
-u32 k_reenter;         //!< 中断重入判断标志
+extern PROCESS* p_proc_ready; //!< 指向下一个要运行的进程
+extern u32 k_reenter;         //!< 中断重入判断标志
 
 /**
  * @brief 一个用来表示gdt信息的变量, 在汇编中可以通过ldgt指令来从新加载该变量指向的gdt
@@ -153,7 +154,7 @@ u32 k_reenter;         //!< 中断重入判断标志
  * @author 45degree
  * @since 0.0.1
  */
-u8 gdt_ptr[6];
+extern u8 gdt_ptr[6];
 
 /**
  * @brief 一个用来表示idt信息的变量, 在汇编中可以通过lidt指令来从新加载该变量指向的idt
@@ -161,9 +162,9 @@ u8 gdt_ptr[6];
  * @author 45degree
  * @since 0.0.1
  */
-u8 idt_ptr[6];
+extern u8 idt_ptr[6];
 
-TSS tss; //!< tss
+extern TSS tss; //!< tss
 
 //*********************** common32_lib.asm中的函数及变量声明 ***************************//
 
@@ -272,14 +273,15 @@ extern void copr_error();
 extern void _display_str(const char* str);
 extern void _display_color_str(const char* str, int TextColor);
 
-int display_pose; //!< 屏幕显示位置
+extern int display_pose; //!< 屏幕显示位置
 
 //********************** syscall32_lib.asm中的函数及变量声明 ***************************//
 
 extern void sys_call();
-extern int get_ticks();
+// extern int get_ticks();
 extern void write(char* buf, int len);
 extern void printx(char* buf);
+extern int sendrec(int function, int src_dest, MESSAGE* msg);
 
 #ifdef __cplusplus
 };

@@ -3,6 +3,10 @@
 #include "package_iA32/packaging_iA32.h"
 #include "tty/console.h"
 #include "show.h"
+#include "core_assert.h"
+
+TTY* current_tty = 0;
+TTY tty_table[NR_CONSOLES];
 
 /**
  * @brief 初始化tty

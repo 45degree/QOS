@@ -4,6 +4,15 @@
 
 #include "package_iA32/packaging_iA32.h"
 
+int display_pose = 0;
+
+PROCESS* p_proc_ready = 0; //!< 指向下一个要运行的进程
+u32 k_reenter = 0;         //!< 中断重入判断标志
+
+u8 gdt_ptr[6];
+u8 idt_ptr[6];
+TSS tss; //!< tss
+
 /**
  * @brief 从gdt_ptr或idt_ptr中获取gdt表或idt表的地址
  * @details 从gdt_ptr或idt_ptr的高4字节获取地址

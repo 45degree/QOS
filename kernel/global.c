@@ -12,6 +12,9 @@
 #include "package_iA32/packaging_iA32.h"
 #include "show.h"
 
+DESCRIPTOR gdt[GTD_SIZE]; //!< GDT表
+GATE idt[IDT_SIZE];       //!< idt表, 该表存储相应的中断门调用
+
 u32 seg2phys(u16 seg) {
     DESCRIPTOR* p_dest = &gdt[seg >> (u16)3];
     return (p_dest->base_high << (u8)24 | p_dest->base_mid << (u8)16 | p_dest->base_low);

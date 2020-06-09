@@ -8,7 +8,7 @@ OffsetOfLoader          equ 0100H                  ; loader.bin(当前文件)被
 BaseOfLoaderPhyAddr     equ BaseOfLoader*10H       ; loader.bin(当前文件)被加载到的内存物理地址
 
 BaseOfStack             equ 0100H                  ; 栈顶位置
-BaseOfKernelFile        equ 07000H                 ; kernel.bin被加载到的内存段地址(kernel.bin的大小不要超过BaseOfKernel-BaseOfLoader)
+BaseOfKernelFile        equ 06000H                 ; kernel.bin被加载到的内存段地址(kernel.bin的大小不要超过BaseOfKernel-BaseOfLoader)
 OffsetOfKernelFile      equ 0H                     ; kernel.bin被加载到的内存偏移地址
 BaseOfKernelFilePhyAddr	equ	BaseOfKernelFile * 10h ; kernel.bin被加载到的物理内存地址
 KernelEntryPointPhyAddr	equ	030400h

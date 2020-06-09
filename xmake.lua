@@ -1,4 +1,4 @@
-set_config("cc", "clang")
+set_config("cc", "gcc")
 set_config("arch", "i386")
 
 target("writebyte")

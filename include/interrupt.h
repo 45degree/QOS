@@ -82,7 +82,7 @@ typedef void (*int_handler)();
  */
 typedef void (*irq_handle)(int irq);
 
-irq_handle irq_table[NR_IRQ]; //!< 外部可屏蔽中断处理函数表, 用于在汇编代码中找到正确的处理函数
+extern irq_handle irq_table[NR_IRQ]; //!< 外部可屏蔽中断处理函数表, 用于在汇编代码中找到正确的处理函数
 
 /**
  * @brief  异常处理函数

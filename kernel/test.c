@@ -9,9 +9,8 @@
 
 void testA() {
     int i = 0;
-    core_assert(1!=1);
-    // while(1) {
-    //     printk("<Ticks:%s>", "dsadas");
-    //     milli_delay(200);
-    // }
+    while(1) {
+        printk("<Ticks:%s>", "dsadas");
+        milli_delay(200);
+    }
 }

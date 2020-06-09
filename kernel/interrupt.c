@@ -24,6 +24,8 @@ static const char *error_msg[] = {"#DE Divide Error",
                                   "#MC Machine Check",
                                   "#XF SIMD Floating-Point Exception"};
 
+irq_handle irq_table[NR_IRQ];
+
 /**
  * 初始化i386中断门
  */

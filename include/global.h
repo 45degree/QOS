@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 
+typedef	unsigned long long	u64;
 typedef unsigned int u32;
 typedef unsigned short u16;
 typedef unsigned char u8;
@@ -207,8 +208,8 @@ extern void global_init();
 
 extern void __stack_chk_fail_local();
 
-DESCRIPTOR gdt[GTD_SIZE]; //!< GDT表
-GATE idt[IDT_SIZE];       //!< idt表, 该表存储相应的中断门调用
+extern DESCRIPTOR gdt[GTD_SIZE]; //!< GDT表
+extern GATE idt[IDT_SIZE];       //!< idt表, 该表存储相应的中断门调用
 
 #ifdef __cplusplus
 };

@@ -17,7 +17,7 @@ target("kernel")
                 os.mkdir(path.directory(output_filepath))
             end
 
-            os.run("nasm -f elf32 "..input_filepath.." -o "..output_filepath.." -I "..target:get("includedirs"))
+            os.run("nasm -f elf32 -g "..input_filepath.." -o "..output_filepath.." -I "..target:get("includedirs"))
         end
 
         -- 生成链接脚本

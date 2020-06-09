@@ -17,7 +17,7 @@ extern void clock_handler(int irq);
 
 extern void init_clock();
 
-int ticks;
+extern int ticks;
 
 #ifdef __cplusplus
 };

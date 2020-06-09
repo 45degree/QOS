@@ -21,7 +21,7 @@ typedef struct tty {
     CONSOLE console;
 } TTY;
 
-TTY* current_tty;
+extern TTY* current_tty;
 
 /**
  * @brief 从tty中读入一个key
@@ -57,7 +57,7 @@ void tty_put_char(TTY* tty);
 
 void task_tty();
 
-TTY tty_table[NR_CONSOLES]; //!< 所有的tty任务
+extern TTY tty_table[NR_CONSOLES]; //!< 所有的tty任务
 
 #ifdef __cplusplus
 };

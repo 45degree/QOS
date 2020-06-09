@@ -3,6 +3,8 @@
 #include "package_iA32/packaging_iA32.h"
 #include "process.h"
 
+int ticks = 0;
+
 void milli_delay(int milli_sec) {
     int t = get_ticks();
     while (((get_ticks() - t) * 1000 / HZ) < milli_sec) {}

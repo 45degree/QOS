@@ -7,6 +7,7 @@
 #include "show.h"
 #include "core_assert.h"
 #include "process.h"
+#include "message.h"
 
 system_call sys_call_table[] = {sys_get_ticks, sys_write, sys_sendrec, sys_printx};
 
@@ -20,7 +21,27 @@ void sys_write(char* buf, int len, char* _unused, PROCESS* proc) {
     }
 }
 
-int sys_sendrec(int function, int src_dest, char* m, PROCESS* proc) {
+int sys_sendrec(int function, int src_dest, MESSAGE* m, PROCESS* proc) {
+    core_assert(k_reenter == 0);
+    core_assert((src_dest >= 0 && src_dest < NR_TASK + NR_PROC) || src_dest == ANY || src_dest == INTERRUPT);
+    int ret = 0;
+    int caller = proc2pid(proc);
+    MESSAGE* mla = (MESSAGE*) va2la(caller, m);
+    mla->source = caller;
+
+    core_assert(mla->source != src_dest);
+
+    if(function == SEND) {
+        ret = msg_send(proc, src_dest, m);
+        if(ret != 0) return ret;
+    }
+    else if (function == RECEIVE) {
+        ret = msg_receive(proc, src_dest, m);
+        if(ret != 0) return ret;
+    }
+    else {
+        panic("{sys_sendrec} invalid. function: \"%d (SEND: %d, RECEIVE: %d)\" ", function, SEND, RECEIVE);
+    }
     return 0;
 }
 
@@ -58,4 +79,12 @@ int sys_printx(int __unused1, int __unused2, char* s, PROCESS* proc) {
         console_output_char(&tty_table[proc->tty].console, ch);
     }
     return 0;
+}
+
+int get_ticks() {
+    MESSAGE msg;
+    reset_msg(&msg);
+    msg.type = GET_TICKS;
+    send_recv(BOTH, TASK_SYS, &msg);
+    return msg.RETVAL;
 }

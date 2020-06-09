@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief   该文件声明一些全局性的功能,包括定义GDT,LDT以及其相关功能,内存地址之间的转换,内存复制等。
+ * @brief   
  * @author  45degree
  * @date    2020/4/18
  * @version 0.0.1
@@ -14,9 +14,13 @@ extern "C" {
 #endif
 
 #include "global.h"
+#include "message.h"
 
-#define NR_TASK 1
+#define NR_TASK 2
 #define NR_PROC 1
+
+#define ANY (NR_TASK + NR_PROC + 10)
+#define NO_TASK (NR_TASK + NR_PROC + 20)
 
 #define proc2pid(x) (x - proc_table)
 
@@ -53,6 +57,13 @@ typedef struct s_proc {
     int priority;              //!< 进程的优先级
     u32 pid;                   //!< 进程pid
     char p_name[16];           //!< 进程名
+    int flags;                 //!< 进程是否可运行，flags=0代表可以运行
+    MESSAGE* msg;
+    int recvfrom;
+    int sendto;
+    int has_int_msg;
+    struct s_proc* sending;
+    struct s_proc* next_sending;
     int tty;                   //!< 进程运行所在的tty
 } PROCESS;
 
@@ -80,8 +91,8 @@ extern u32 ldt_seg_linear(PROCESS* p, int idx);
 
 u32 va2la(int pid, void* va);
 
-PROCESS proc_table[NR_TASK + NR_PROC];      //!< 进程列表, 存放所有要运行的进程
-char task_stack[STACK_SIZE_TOTAL]; //!< 进程堆栈
+extern PROCESS proc_table[NR_TASK + NR_PROC];      //!< 进程列表, 存放所有要运行的进程
+extern char task_stack[STACK_SIZE_TOTAL]; //!< 进程堆栈
 
 #ifdef __cplusplus
 };
