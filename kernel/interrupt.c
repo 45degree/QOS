@@ -161,8 +161,7 @@ void init_port() {
     /* 填充GDT中进程的LDT的描述符 */
     core_memcpy(&tss, 0, sizeof(TSS));
     tss.ss0 = SELECTOR_KERNEL_DS;
-    init_descriptor(&gdt[selector_tss >> 3], vir2phys(seg2phys(SELECTOR_KERNEL_DS), (u32)&tss),
-                    sizeof(TSS) - 1, da_tss_386);
+    init_descriptor(&gdt[selector_tss >> 3], vir2phys(seg2phys(SELECTOR_KERNEL_DS), (u32)&tss), sizeof(TSS) - 1, da_tss_386);
     tss.iobase = sizeof(TSS);
 
     /* 填充GDT中进程的LDT的描述符 */

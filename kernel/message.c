@@ -40,7 +40,7 @@ int msg_send(PROCESS* current, int dst, MESSAGE* m) {
     PROCESS* sender = current;
     PROCESS* dest = proc_table + dst;
 
-    core_assert(proc2pid(sender) != dest);
+    core_assert(proc2pid(sender) != dst);
 
     if(deadlock(proc2pid(sender), dest)) {
         panic(">>DEADLOCK<< %s -> %s", sender->p_name, dest->p_name);

@@ -20,7 +20,7 @@ int kernel_main() {
     char* p_task_stack = task_stack + STACK_SIZE_TOTAL;
     u16 selector_ldt = selector_ldt_first;
 
-    proc_table[0].ticks = proc_table[0].priority = 100;
+    proc_table[0].ticks = proc_table[0].priority = 500;
     proc_table[1].ticks = proc_table[1].priority = 100;
     proc_table[2].ticks = proc_table[2].priority = 15;
 
@@ -62,9 +62,11 @@ int kernel_main() {
 
         p_proc->tty = 0;
         p_proc->flags = 0;
+        p_proc->msg = 0;
         p_proc->recvfrom = NO_TASK;
         p_proc->sendto = NO_TASK;
         p_proc->has_int_msg = 0;
+        p_proc->sending = 0;
         p_proc->next_sending = 0;
 
         p_task_stack -= p_task->stacksize;

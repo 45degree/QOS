@@ -10,7 +10,7 @@
 void testA() {
     int i = 0;
     while(1) {
-        printk("<Ticks:%s>", "dsadas");
+        printk("<Ticks>");
         milli_delay(200);
     }
 }

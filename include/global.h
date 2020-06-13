@@ -165,8 +165,7 @@ enum selector_attribute {
 #define RPL_USER sa_RPL3 //!< 用户段选择子RPL为3
 
 #define STACK_SIZE_TESTA 0x8000
-#define STACK_SIZE_TESTB 0x8000
-#define STACK_SIZE_TOTAL (STACK_SIZE_TESTA + STACK_SIZE_TESTB)
+#define STACK_SIZE_TOTAL (STACK_SIZE_TESTA + STACK_SIZE_TESTA + STACK_SIZE_TESTA)
 
 /**
  * @brief  计算选择子对应的段描述符的基地址
