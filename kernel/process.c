@@ -21,7 +21,7 @@ void schedule() {
         if (!greatest_ticks) {
             for (int i = 0; i < NR_TASK + NR_PROC; i++) {
                 p = &proc_table[i];
-                if(p->flags) {
+                if(p->flags == 0) {
                     p->ticks = p->priority;
                 }
             }

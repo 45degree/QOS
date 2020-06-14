@@ -9,9 +9,7 @@
 #include "process.h"
 #include "message.h"
 
-system_call sys_call_table[] = {sys_get_ticks, sys_write, sys_sendrec, sys_printx};
-
-int sys_get_ticks() { return ticks; }
+system_call sys_call_table[] = {sys_write, sys_sendrec, sys_printx};
 
 void sys_write(char* buf, int len, char* _unused, PROCESS* proc) {
     for(int i = 0; i < len; i++) {

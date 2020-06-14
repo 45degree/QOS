@@ -67,7 +67,7 @@ int msg_send(PROCESS* current, int dst, MESSAGE* m) {
     else {
         sender->flags |= SENDING;
         core_assert(sender->flags == SENDING);
-        sender->sendto = dest;
+        sender->sendto = dst;
         sender->msg = m;
 
         PROCESS* p;
@@ -95,6 +95,7 @@ int msg_receive(PROCESS* current, int src, MESSAGE* m) {
     PROCESS* prev = 0;
     int copyok = 0;
 
+    // 不是自己向自己发送消息
     core_assert(proc2pid(who_wanna_recv) != src);
 
     if((who_wanna_recv->has_int_msg) && ((src == ANY) || (src == INTERRUPT))) {

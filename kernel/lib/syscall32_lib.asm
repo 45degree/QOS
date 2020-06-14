@@ -1,9 +1,8 @@
 %include "sconst.inc"
 
-_NR_get_ticks equ 0
-_NR_write equ 1
-_NR_sendrec equ 2
-_NR_printx equ 3
+_NR_write equ 0
+_NR_sendrec equ 1
+_NR_printx equ 2
 
 INT_VECTOR_SYS_CALL equ 0x90
 

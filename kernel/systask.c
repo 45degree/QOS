@@ -2,6 +2,7 @@
 #include "process.h"
 #include "panic.h"
 #include "clock.h"
+#include "printk.h"
 
 void task_sys() {
     MESSAGE msg;

@@ -20,7 +20,7 @@ int kernel_main() {
     char* p_task_stack = task_stack + STACK_SIZE_TOTAL;
     u16 selector_ldt = selector_ldt_first;
 
-    proc_table[0].ticks = proc_table[0].priority = 500;
+    proc_table[0].ticks = proc_table[0].priority = 100;
     proc_table[1].ticks = proc_table[1].priority = 100;
     proc_table[2].ticks = proc_table[2].priority = 15;
 
@@ -76,8 +76,8 @@ int kernel_main() {
     }
     k_reenter = 0;
 
-    proc_table[0].tty = 2;
-    proc_table[1].tty = 1;
+    proc_table[0].tty = 1;
+    proc_table[1].tty = 2;
     proc_table[2].tty = 0;
 
     set_process_ready(proc_table);
