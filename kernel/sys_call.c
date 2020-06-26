@@ -8,6 +8,8 @@
 #include "core_assert.h"
 #include "process.h"
 #include "message.h"
+#include "panic.h"
+#include "systask.h"
 
 system_call sys_call_table[] = {sys_write, sys_sendrec, sys_printx};
 
@@ -49,7 +51,7 @@ int sys_printx(int __unused1, int __unused2, char* s, PROCESS* proc) {
     char* reenter_err = "? k_reenter is incorrect for unknown reason";
     reenter_err[0] = MAG_CH_PANIC;
 
-    if (k_reenter == 0) p = va2la(proc2pid(proc), s);
+    if (k_reenter == 0) p = (char*)va2la(proc2pid(proc), s);
     else if (k_reenter > 0) p = s;
     else p = reenter_err;
 

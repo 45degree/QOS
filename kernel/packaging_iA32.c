@@ -11,7 +11,7 @@ u32 k_reenter = 0;         //!< 中断重入判断标志
 
 u8 gdt_ptr[6];
 u8 idt_ptr[6];
-TSS tss; //!< tss
+struct tss tss; //!< tss
 
 /**
  * @brief 从gdt_ptr或idt_ptr中获取gdt表或idt表的地址
@@ -87,7 +87,7 @@ u16 get_idt_offset() { return get_ptr_offset(idt_ptr); }
  */
 void set_idt_ptr(const u32* addr, u16 offset) { set_ptr(addr, offset, idt_ptr); }
 
-TSS* get_tss() { return &tss; }
+struct tss* get_tss() { return &tss; }
 
 void init_tss() {
     tss.esp0 = 0x00;

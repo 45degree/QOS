@@ -31,7 +31,7 @@ irq_handle irq_table[NR_IRQ];
  */
 static void init_idt_desc(unsigned char vector, u8 desc_type, int_handler handler,
                           enum privilege privilege) {
-    GATE *p_gate = &idt[vector];
+    struct gate *p_gate = &idt[vector];
     u32 base = (u32)handler;
     p_gate->offset_low = base & 0xFFFF;
     p_gate->selector = SELECTOR_KERNEL_CS;
@@ -74,16 +74,17 @@ void put_irq_handler(int irq, irq_handle handler) {
 
 void disable_irq(int irq) {
     if (irq < 8)
-        out_byte(INT_M_CTLMASK, in_byte(INT_M_CTLMASK) | (1 << irq));
+        out_byte(INT_M_CTLMASK, in_byte(INT_M_CTLMASK) | (1u << irq));
     else
-        out_byte(INT_S_CTLMASK, in_byte(INT_S_CTLMASK) | (1 << irq));
+        out_byte(INT_S_CTLMASK, in_byte(INT_S_CTLMASK) | (1u << (irq % 8)));
 }
 
 void enable_irq(int irq) {
     if (irq < 8)
-        out_byte(INT_M_CTLMASK, in_byte(INT_M_CTLMASK) & ~(1 << irq));
-    else
-        out_byte(INT_S_CTLMASK, in_byte(INT_S_CTLMASK) & ~(1 << irq));
+        out_byte(INT_M_CTLMASK, in_byte(INT_M_CTLMASK) & ~(1u << irq));
+    else {
+        out_byte(INT_S_CTLMASK, in_byte(INT_S_CTLMASK) & ~(1u << (irq % 8))); 
+    }
 }
 
 /**
@@ -159,17 +160,17 @@ void init_port() {
     init_idt_desc(INT_VECTOR_SYS_CALL, da_i_gate_386, sys_call, privilege_user);
 
     /* 填充GDT中进程的LDT的描述符 */
-    core_memcpy(&tss, 0, sizeof(TSS));
+    core_memcpy(&tss, 0, sizeof(struct tss));
     tss.ss0 = SELECTOR_KERNEL_DS;
-    init_descriptor(&gdt[selector_tss >> 3], vir2phys(seg2phys(SELECTOR_KERNEL_DS), (u32)&tss), sizeof(TSS) - 1, da_tss_386);
-    tss.iobase = sizeof(TSS);
+    init_descriptor(&gdt[selector_tss >> 3], vir2phys(seg2phys(SELECTOR_KERNEL_DS), (u32)&tss), sizeof(struct tss) - 1, da_tss_386);
+    tss.iobase = sizeof(struct tss);
 
     /* 填充GDT中进程的LDT的描述符 */
     u16 selector_ldt = selector_ldt_first & SA_RPL_MASK & SA_TI_MASK;
     for (int i = 0; i < NR_TASK + NR_PROC; i++) {
         init_descriptor(&gdt[selector_ldt >> 3],
                         vir2phys(seg2phys(SELECTOR_KERNEL_DS), (u32)proc_table[i].ldts),
-                        LDT_SIZE * sizeof(DESCRIPTOR) - 1, da_ldt);
+                        LDT_SIZE * sizeof(struct descriptor) - 1, da_ldt);
         selector_ldt += 1 << 3;
     }
 }

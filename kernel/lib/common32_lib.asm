@@ -3,6 +3,7 @@ global core_strcpy
 global core_memset
 global out_byte
 global in_byte
+global port_read
 
 [section .text]
 ; ------------------------------------------------------------------------
@@ -69,6 +70,35 @@ in_byte:
     nop
     nop
     ret
+
+; ------------------------------------------------------------------------
+; 函数名: port_read
+; 描述:   从指定端口读入n个数据
+; c原型:  void port_read(u16 port, void* dest, int n);
+; ------------------------------------------------------------------------
+port_read:
+    push ebp
+    mov  ebp, esp
+
+    push edx
+    push edi
+    push ecx
+
+    mov edx, [ebp + 8];
+    mov edi, [ebp + 12];
+    mov ecx, [ebp + 16];
+
+    shr ecx, 1
+    cld
+    rep insw
+
+    pop ecx
+    pop edi
+    pop edx
+    mov esp, ebp
+    pop ebp
+    ret
+
 ; ------------------------------------------------------------------------
 ; 函数名：core_strcpy
 ; 描述:   复制字符串

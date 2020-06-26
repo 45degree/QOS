@@ -12,11 +12,11 @@
 #include "package_iA32/packaging_iA32.h"
 #include "show.h"
 
-DESCRIPTOR gdt[GTD_SIZE]; //!< GDT表
-GATE idt[IDT_SIZE];       //!< idt表, 该表存储相应的中断门调用
+struct descriptor gdt[GTD_SIZE]; //!< GDT表
+struct gate idt[IDT_SIZE];       //!< idt表, 该表存储相应的中断门调用
 
 u32 seg2phys(u16 seg) {
-    DESCRIPTOR* p_dest = &gdt[seg >> (u16)3];
+    struct descriptor* p_dest = &gdt[seg >> (u16)3];
     return (p_dest->base_high << (u8)24 | p_dest->base_mid << (u8)16 | p_dest->base_low);
 };
 
@@ -37,18 +37,18 @@ void global_init() {
 
     // 重新设置gdt
     u32 gdt_addr = (u32)&gdt;  //获取新gdt表的地址
-    set_gdt_ptr((const u32*)gdt_addr, GTD_SIZE * sizeof(DESCRIPTOR) - 1);
+    set_gdt_ptr((const u32*)gdt_addr, GTD_SIZE * sizeof(struct descriptor) - 1);
 
     // 设置idt
     u32 idt_addr = (u32)&idt;
-    set_idt_ptr((const u32*)idt_addr, IDT_SIZE * sizeof(GATE) - 1);
+    set_idt_ptr((const u32*)idt_addr, IDT_SIZE * sizeof(struct gate) - 1);
 
     display_str("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n -----\"cstart\" begins-----\n");
     init_port();
     display_str("-----\"cstart\" ends-----\n");
 }
 
-void init_descriptor(DESCRIPTOR* p_desc, u32 base, u32 limit, enum descriptor_attribute attribute) {
+void init_descriptor(struct descriptor* p_desc, u32 base, u32 limit, enum descriptor_attribute attribute) {
     p_desc->limit_low = limit & (u32)0x0FFFF;
     p_desc->base_low = base & (u32)0x0FFFF;
     p_desc->base_mid = (base >> (u32)16) & (u32)0x0FF;

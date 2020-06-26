@@ -28,6 +28,35 @@
     ret
 %endmacro
 
+%macro hwint_slave 1
+    call save
+
+    ; 禁止当前中断
+    in  al, INT_S_CTLMASK
+    or  al, (1 >> (%1 - 8))
+    out INT_S_CTLMASK, al
+
+    ; 发送EOI, 以便继续接受中断
+    mov al, EOI
+    out INT_M_CTL, al
+    nop
+    out INT_S_CTLMASK, al
+
+    sti
+    push %1
+    call [irq_table + 4 * %1]
+    pop ecx
+    cli
+
+    ; 恢复当前中断
+    in  al, INT_S_CTLMASK
+    and al, ~(1 << (%1 - 8))
+    out INT_S_CTLMASK, al
+
+    ; 将栈顶元素弹出赋值给ip, 如果发生了中断重入跳到.restart_reenter_v2, 没有重入跳到.restart_v2
+    ret
+%endmacro
+
 [section .text]
 extern save
 extern spurious_irq
@@ -128,59 +157,37 @@ hwint07:
 
 align 16
 hwint08:
-    push 8
-    call spurious_irq
-    add  esp, 4
-    hlt
+    hwint_slave 8
 
 align 16
 hwint09:
-    push 9
-    call spurious_irq
-    add  esp, 4
-    hlt
+    hwint_slave 9
 
 align 16
 hwint10:
-    push 10
-    call spurious_irq
-    add  esp, 4
-    hlt
+    hwint_slave 10
 
 align 16
 hwint11:
-    push 11
-    call spurious_irq
-    add  esp, 4
-    hlt
+    hwint_slave 11
 
 align 16
 hwint12:
-    push 12
-    call spurious_irq
-    add  esp, 4
-    hlt
+    hwint_slave 12
 
 align 16
 hwint13:
-    push 13
-    call spurious_irq
-    add  esp, 4
-    hlt
+    hwint_slave 13
 
 align 16
 hwint14:
-    push 14
-    call spurious_irq
-    add  esp, 4
-    hlt
+    hwint_slave 14
 
 align 16
 hwint15:
-    push 15
-    call spurious_irq
-    add  esp, 4
-    hlt
+    hwint_slave 15
+
+; 异常
 divide_error:
     push 0xFFFFFFFF
     push 0

@@ -5,9 +5,9 @@
 static void set_cursor(CONSOLE* console) {
     disable_int();
     out_byte(CRTC_ADDR_REG, CURSOR_H);
-    out_byte(CRTC_DATA_REG, (console -> cursor >> (u32)8) & (u32)0xFF);
+    out_byte(CRTC_DATA_REG, (console->cursor >> (u32)8) & (u32)0xFF);
     out_byte(CRTC_ADDR_REG, CURSOR_L);
-    out_byte(CRTC_DATA_REG, console -> cursor & (u32)0xFF);
+    out_byte(CRTC_DATA_REG, console->cursor & (u32)0xFF);
     enable_int();
 }
 
@@ -34,7 +34,7 @@ void init_console(CONSOLE* console, u32 original_addr, u32 video_mem_limit) {
 void console_output_char(CONSOLE* console, char str) {
     switch (str) {
     case '\b':
-        if(console -> cursor > console -> original_addr) {
+        if (console->cursor > console->original_addr) {
             console->cursor--;
             out_char(console, ' ');
             console->cursor--;
@@ -44,12 +44,13 @@ void console_output_char(CONSOLE* console, char str) {
     case '\n':
         // 如果光标不再最后一行, 设置光标到下一行开始位置
         if (console->cursor < console->original_addr + console->video_mem_limit - SCREEN_WIDTH) {
-            console->cursor = console->original_addr + SCREEN_WIDTH * ((console->cursor - console->original_addr) / SCREEN_WIDTH + 1) + 1;
+            int offset_screen = (console->cursor - console->original_addr) / SCREEN_WIDTH + 1;
+            console->cursor = console->original_addr + SCREEN_WIDTH * offset_screen;
         }
         set_cursor(console);
         break;
     default:
-        if (console ->cursor < console->original_addr + console ->video_mem_limit)
+        if (console->cursor < console->original_addr + console->video_mem_limit)
             out_char(console, str);
         break;
     }

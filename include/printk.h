@@ -9,13 +9,15 @@
 extern "C" {
 #endif
 
+#include "type.h"
+
 /**
  * @brief 格式化打印, 类似于printf
  * @param[in] fmt 格式化字符串
  * @author 45degree
  * @since 0.01
  */
-int printk(const char* fmt, ...);
+void printk(const char* fmt, ...);
 
 /**
  * @brief 格式化字符串
@@ -27,7 +29,7 @@ int printk(const char* fmt, ...);
  * @since 0.01
  * @note 暂时只支持"%x %c %s"的格式化
  */
-int vsprintk(char* buf, const char* fmt, char* args);
+int vsprintk(char* buf, const char* fmt, va_list args);
 
 #ifdef __cplusplus
 };

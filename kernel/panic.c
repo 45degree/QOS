@@ -1,6 +1,5 @@
-
+#include "panic.h"
 #include "printk.h"
-#include "core_assert.h"
 
 void panic(const char *fmt, ...) {
     int i;

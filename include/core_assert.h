@@ -6,7 +6,6 @@ extern "C" {
 #endif
 
 /* magic chars used by `printx' */
-#define MAG_CH_PANIC	'\002'
 #define MAG_CH_ASSERT	'\003'
 
 #define core_assert(exp) if(exp); \

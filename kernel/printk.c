@@ -1,35 +1,30 @@
 #include "printk.h"
+#include "core_string.h"
 #include "package_iA32/packaging_iA32.h"
 #include "show.h"
-#include "core_string.h"
+#include "type.h"
 
-int vsprintk(char* buf, const char* fmt, char* args) {
+int vsprintk(char* buf, const char* fmt, va_list args) {
     char temp[256];
     char* p = buf;
-    char* next_arg = args;
-    char** str;
-    for(; *fmt; fmt++) {
-        if(*fmt != '%') {
+    for (; *fmt; fmt++) {
+        if (*fmt != '%') {
             *p++ = *fmt;
             continue;
         }
         fmt++;
         switch (*fmt) {
         case 'x':
-            itoa(temp, *((int*)next_arg));
+            itoa(temp, va_arg(args, unsigned int));
             core_strcpy(p, temp);
-            next_arg += sizeof(char*);
             p += core_strlen(temp);
             break;
         case 'c':
-            *p++ = *next_arg;
-            next_arg += sizeof(char*);
+            *p++ = va_arg(args, char);
             break;
         case 's':
-            str = next_arg;
-            core_strcpy(p, *str);
+            core_strcpy(p, va_arg(args, char*));
             int len = core_strlen(p);
-            next_arg += sizeof(char*);
             p += len;
             break;
         default:
@@ -39,10 +34,11 @@ int vsprintk(char* buf, const char* fmt, char* args) {
     return (p - buf);
 }
 
-int printk(const char* fmt, ...) {
-    int i;
+void printk(const char* fmt, ...) {
     char buf[256];
-    char* arg = (&fmt) + 1;
-    i = vsprintk(buf, fmt, arg);
+    core_memset(buf, 0, 256);
+    va_list list;
+    va_start(list, fmt);
+    vsprintk(buf, fmt, list);
     printx(buf);
 }

@@ -98,6 +98,7 @@ int msg_receive(PROCESS* current, int src, MESSAGE* m) {
     // 不是自己向自己发送消息
     core_assert(proc2pid(who_wanna_recv) != src);
 
+    // 是否在等待一个中断事件
     if((who_wanna_recv->has_int_msg) && ((src == ANY) || (src == INTERRUPT))) {
         MESSAGE msg;
         reset_msg(&msg);
@@ -200,6 +201,30 @@ int msg_receive(PROCESS* current, int src, MESSAGE* m) {
 void reset_msg(MESSAGE* msg) {
     core_memset(msg, 0, sizeof(MESSAGE));
 }
+
+void inform_int(int task_nr) {
+    PROCESS* p = proc_table + task_nr;
+
+    if ((p->flags & RECEIVING) && ((p->recvfrom == INTERRUPT) || (p->recvfrom == ANY))) {
+        p->msg->source = INTERRUPT;
+        p->msg->type = HARD_INT;
+        p->msg = 0;
+        p->has_int_msg = 0;
+        p->flags &= ~RECEIVING;
+        p->recvfrom = NO_TASK;
+        core_assert(p->flags == 0);
+        unblock(p);
+
+        core_assert(p->flags == 0);
+        core_assert(p->msg == 0);
+        core_assert(p->recvfrom == NO_TASK);
+        core_assert(p->sendto == NO_TASK);
+    }
+    else {
+        p->has_int_msg = 1;
+    }
+}
+
 
 int send_recv(int function, int src_dest, MESSAGE* msg) {
     int ret = 0;

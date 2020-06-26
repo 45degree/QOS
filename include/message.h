@@ -12,9 +12,6 @@ extern "C" {
 #define INVALID_DRIVER -20
 #define INTERRUPT -10
 
-#define TASK_TTY 0
-#define TASK_SYS 1
-
 #define SEND 1
 #define RECEIVE 2
 #define BOTH 3 /* BOTH = (SEND | RECEIVE) */
@@ -54,8 +51,14 @@ typedef struct {
 } MESSAGE;
 
 enum msgtype {
-	HARD_INT = 1,
-	GET_TICKS,
+    HARD_INT = 1,
+    GET_TICKS,
+
+    DEV_OPEN = 1001,
+    DEV_CLOSE,
+    DEV_READ,
+    DEV_WRITE,
+    DEV_IOCTL
 };
 
 typedef struct s_proc PROCESS;
@@ -63,6 +66,7 @@ typedef struct s_proc PROCESS;
 int msg_send(PROCESS* current, int dst, MESSAGE* m);
 int msg_receive(PROCESS* current, int src, MESSAGE* m);
 void reset_msg(MESSAGE* msg);
+void inform_int(int task_nr);
 int send_recv(int function, int src_dest, MESSAGE* msg);
 
 #define	RETVAL u.m3.m3i1

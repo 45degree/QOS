@@ -49,7 +49,7 @@ enum exception_vector {
 #define NR_IRQ 16       //!< 外部可屏蔽中断一共有16个
 #define CLOCK_IRQ 0     //!< 时钟中断
 #define KEYBOARD_IRQ 1  //!< 键盘中断
-#define CASCADE_IRQ 2   //!< cascade enable for 2nd AT controller
+#define CASCADE_IRQ 2   //!< 级联8259A控制器, 使用8-15号中断时需要先打开
 #define ETHER_IRQ 3     //!< default ethernet interrupt vector
 #define SECONDARY_IRQ 3 //!< RS232 interrupt vector for port 2
 #define RS232_IRQ 4     //!< RS232 interrupt vector for port 1
@@ -61,10 +61,9 @@ enum exception_vector {
 #define INT_VECTOR_SYS_CALL 0x90 //!< 系统调用中断
 
 /**
- * @brief  异常和中断处理函数指针
- * @author 45degree
- *
- * 该函数指针主要用于中断和异常的处理函数注册
+ * @brief   异常和中断处理函数指针
+ * @author  45degree
+ * @details 该函数指针主要用于中断和异常的处理函数注册
  * @since 0.0.1
  * @see init_idt_desc
  */

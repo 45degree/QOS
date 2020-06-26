@@ -30,7 +30,7 @@ void schedule() {
 }
 
 u32 ldt_seg_linear(PROCESS* p, int idx) {
-    DESCRIPTOR* desc = &p->ldts[idx];
+    struct descriptor* desc = &p->ldts[idx];
     return desc->base_high << 24 | desc->base_mid << 16 | desc->base_low;
 }
 

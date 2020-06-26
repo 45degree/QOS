@@ -2,10 +2,12 @@
 #define PANIC_H
 
 #ifdef __cplusplus
-extern "C" { 
+extern "C" {
 #endif
 
-void panic(const char* fmt, ...);
+#define MAG_CH_PANIC '\002'
+
+extern void panic(const char* fmt, ...);
 
 #ifdef __cplusplus
 };

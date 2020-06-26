@@ -24,8 +24,6 @@ extern "C" {
 #define SCR_UP 1  //!< scroll forward
 #define SCR_DN -1 //!< scroll backward
 
-#define DEFAULT_CHAR_COLOR 0x07 //!< 0000 0111 黑底白字
-
 #define SCREEN_SIZE (80 * 25) //!< 一个console的大小
 #define SCREEN_WIDTH 80       //!< 一个console的宽度
 

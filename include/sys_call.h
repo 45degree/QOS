@@ -42,6 +42,7 @@ int sys_printx(int __unused1, int __unused2, char* s, PROCESS* proc);
 
 int sys_sendrec(int function, int src_dest, MESSAGE* m, PROCESS* proc);
 
+int get_ticks();
 #ifdef __cplusplus
 };
 #endif

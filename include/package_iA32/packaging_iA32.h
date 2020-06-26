@@ -109,7 +109,7 @@ extern u8* get_idt_ptr();
  * @author 45degree
  * @since 0.0.1
  */
-extern TSS* get_tss();
+extern struct tss* get_tss();
 
 /**
  * @brief 初始化tss
@@ -164,7 +164,7 @@ extern u8 gdt_ptr[6];
  */
 extern u8 idt_ptr[6];
 
-extern TSS tss; //!< tss
+extern struct tss* tss; //!< tss
 
 //*********************** common32_lib.asm中的函数及变量声明 ***************************//
 
@@ -207,7 +207,7 @@ extern void core_strcpy(char* p_dst, char* p_src);
 /**
  * @brief 向端口写数据
  * @author 45degree
- * @param part  端口号
+ * @param port  端口号
  * @param value 写入的数据值
  * @since 0.0.1
  */
@@ -216,11 +216,19 @@ extern void out_byte(u16 port, u8 value);
 /**
  * @brief 从端口读数据
  * @author 45degree
- * @param part  端口号
+ * @param port  端口号
  * @return 读出的数据
  * @since 0.0.1
  */
 extern u8 in_byte(u16 port);
+
+/**
+ * @breif 从端口读入数据到指定位置
+ * @param port 端口号
+ * @param dest 读取到的位置
+ * @param 读取的字节数
+ */
+extern void port_read(u16 port, void* dest, int n);
 
 //********************** interrupt32_lib.asm中的函数及变量声明 *************************//
 

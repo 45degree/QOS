@@ -1,4 +1,4 @@
-set_config("cc", "clang")
+set_config("cc", "gcc")
 set_config("arch", "i386")
 
 target("writebyte")
@@ -27,7 +27,8 @@ target("QOS.img")
     end)
 
     on_run(function(target)
-        os.run("qemu-system-i386 -S -gdb tcp::1234 -boot a -fda "..target:targetfile().." -serial stdio")
+        -- os.run("qemu-system-i386 -hda ./80m.img -S -gdb tcp::1234 -boot a -fda "..target:targetfile().." -serial stdio")
+        os.run("qemu-system-i386 -hda ./80m.img -boot a -fda "..target:targetfile().." -serial stdio")
     end)
 target_end()
 

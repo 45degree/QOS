@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 
-typedef	unsigned long long	u64;
+typedef unsigned long long u64;
 typedef unsigned int u32;
 typedef unsigned short u16;
 typedef unsigned char u8;
@@ -30,14 +30,14 @@ typedef unsigned char u8;
  * 2字节、3字节、4字节、7字节代表的段基址,描述的是该描述符对应的内存段的起始地址,
  * 5字节和6字节的高4位代表的是段属性。LDT描述符结构与其类似。
  */
-typedef struct descriptor {
+ struct descriptor {
     u16 limit_low;       //!< 段界限低16位
     u16 base_low;        //!< 段基址低16位
     u8 base_mid;         //!< 段基址3字节
     u8 attr1;            //!< 描述符属性
     u8 limit_high_attr2; //!< 低四位代表段界限高四位, 高4位代表属性的高四位
     u8 base_high;        //!< 段基址的高4位
-} DESCRIPTOR;
+};
 
 /**
  * @brief 门描述符, 主要用于调用和特权级转移
@@ -45,13 +45,13 @@ typedef struct descriptor {
  * 一个门描述符共有8个字节,其中0字节、1字节、6字节、7字节代表目标代码段入口地址的偏移;
  * 2字节、3字节代表目标代码段的选择子; 4字节代表门参数个数,5字节代表门属性。
  */
-typedef struct gate {
+ struct gate {
     u16 offset_low;  //!< 入口地址偏移的低16位
     u16 selector;    //!< 目标代码的选择子
     u8 dcount;       //!< 门描述符的参数个数
     u8 attr;         //!< 门描述符的属性
     u16 offset_high; //!< 入口地址偏移的高16位
-} GATE;
+};
 
 /**
  * @brief 任务状态堆栈(Task Status Stack, tss), 用于低特权级向高特权级转换
@@ -59,7 +59,7 @@ typedef struct gate {
  * 当低特权级向高特权级转换时,堆栈将自动切换成TSS中保存的位置。
  * 例如当由ring3转移到ring1时,堆栈将被自动切换到由ss1和esp1指定的位置。
  */
-typedef struct tss {
+ struct tss {
     u32 backlink; //!< 上一个任务的链接
     u32 esp0;     //!< 转移到0特权级时esp的值
     u32 ss0;      //!< 转移到0特权级时ss的值
@@ -87,7 +87,7 @@ typedef struct tss {
     u32 ldt;      //!< ldt选择子
     u16 trap;     //!< IO许可位图低16位
     u16 iobase;   //!< IO许可位图高16位
-} TSS;
+};
 
 /**
  * @brief 特权级别
@@ -157,6 +157,7 @@ enum selector_attribute {
     sa_TIG = 0,  //!< 设置TI为0, 代表选择子在GDT中
     sa_TIL = 4   //!< 设置TI为1, 代表选择子在LDT中
 };
+
 #define SA_RPL_MASK 0xFFFCu //!< 选择子RPL掩码, 用于清空选择子的RPL
 #define SA_TI_MASK 0xFFFBu //!< 选择子TI掩码, 用于清空选择子的TI
 
@@ -165,7 +166,7 @@ enum selector_attribute {
 #define RPL_USER sa_RPL3 //!< 用户段选择子RPL为3
 
 #define STACK_SIZE_TESTA 0x8000
-#define STACK_SIZE_TOTAL (STACK_SIZE_TESTA + STACK_SIZE_TESTA + STACK_SIZE_TESTA)
+#define STACK_SIZE_TOTAL (STACK_SIZE_TESTA * (NR_TASK + NR_PROC))
 
 /**
  * @brief  计算选择子对应的段描述符的基地址
@@ -195,7 +196,7 @@ extern u32 vir2phys(u32 seg_base, u32 vir);
  * @param[in]   attribute 描述符对应的内存段的段属性
  * @since 0.0.1
  */
-extern void init_descriptor(DESCRIPTOR* p_desc, u32 base, u32 limit,
+extern void init_descriptor(struct descriptor* p_desc, u32 base, u32 limit,
                             enum descriptor_attribute attribute);
 
 /**
@@ -207,8 +208,8 @@ extern void global_init();
 
 extern void __stack_chk_fail_local();
 
-extern DESCRIPTOR gdt[GTD_SIZE]; //!< GDT表
-extern GATE idt[IDT_SIZE];       //!< idt表, 该表存储相应的中断门调用
+extern struct descriptor gdt[GTD_SIZE]; //!< GDT表
+extern struct gate idt[IDT_SIZE];       //!< idt表, 该表存储相应的中断门调用
 
 #ifdef __cplusplus
 };
