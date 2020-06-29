@@ -5,14 +5,12 @@
 #include "CuTest.h"
 #include <stdio.h>
 
-CuSuite* StrUtilGetSuite();
 CuSuite* itoa_test();
 
 void RunAllTests(void) {
     CuString *output = CuStringNew();
     CuSuite* suite = CuSuiteNew();
 
-    CuSuiteAddSuite(suite, StrUtilGetSuite());
     CuSuiteAddSuite(suite, itoa_test());
 
     CuSuiteRun(suite);

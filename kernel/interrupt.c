@@ -160,10 +160,10 @@ void init_port() {
     init_idt_desc(INT_VECTOR_SYS_CALL, da_i_gate_386, sys_call, privilege_user);
 
     /* 填充GDT中进程的LDT的描述符 */
-    core_memcpy(&tss, 0, sizeof(struct tss));
-    tss.ss0 = SELECTOR_KERNEL_DS;
-    init_descriptor(&gdt[selector_tss >> 3], vir2phys(seg2phys(SELECTOR_KERNEL_DS), (u32)&tss), sizeof(struct tss) - 1, da_tss_386);
-    tss.iobase = sizeof(struct tss);
+    core_memcpy(&s_tss, 0, sizeof(struct tss));
+    s_tss.ss0 = SELECTOR_KERNEL_DS;
+    init_descriptor(&gdt[selector_tss >> 3], vir2phys(seg2phys(SELECTOR_KERNEL_DS), (u32)&s_tss), sizeof(struct tss) - 1, da_tss_386);
+    s_tss.iobase = sizeof(struct tss);
 
     /* 填充GDT中进程的LDT的描述符 */
     u16 selector_ldt = selector_ldt_first & SA_RPL_MASK & SA_TI_MASK;

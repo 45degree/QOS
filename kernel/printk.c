@@ -15,7 +15,12 @@ int vsprintk(char* buf, const char* fmt, va_list args) {
         fmt++;
         switch (*fmt) {
         case 'x':
-            itoa(temp, va_arg(args, unsigned int));
+            itoa(temp, va_arg(args, int), 16);
+            core_strcpy(p, temp);
+            p += core_strlen(temp);
+            break;
+        case 'd':
+            itoa(temp, va_arg(args, int), 10);
             core_strcpy(p, temp);
             p += core_strlen(temp);
             break;

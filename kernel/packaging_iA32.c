@@ -11,7 +11,7 @@ u32 k_reenter = 0;         //!< 中断重入判断标志
 
 u8 gdt_ptr[6];
 u8 idt_ptr[6];
-struct tss tss; //!< tss
+struct tss s_tss; //!< tss
 
 /**
  * @brief 从gdt_ptr或idt_ptr中获取gdt表或idt表的地址
@@ -87,36 +87,36 @@ u16 get_idt_offset() { return get_ptr_offset(idt_ptr); }
  */
 void set_idt_ptr(const u32* addr, u16 offset) { set_ptr(addr, offset, idt_ptr); }
 
-struct tss* get_tss() { return &tss; }
+struct tss* get_tss() { return &s_tss; }
 
 void init_tss() {
-    tss.esp0 = 0x00;
-    tss.ss0 = 0x00;
-    tss.backlink = 0x00;
-    tss.esp1 = 0x00;
-    tss.ss1 = 0x00;
-    tss.esp2 = 0x00;
-    tss.ss2 = 0x00;
-    tss.cr3 = 0x00;
-    tss.eip = 0x00;
-    tss.flags = 0x00;
-    tss.eax = 0x00;
-    tss.ecx = 0x00;
-    tss.edx = 0x00;
-    tss.ebx = 0x00;
-    tss.esp = 0x00;
-    tss.ebp = 0x00;
-    tss.esi = 0x00;
-    tss.edi = 0x00;
-    tss.es = 0x00;
-    tss.cs = 0x00;
-    tss.ss = 0x00;
-    tss.ds = 0x00;
-    tss.fs = 0x00;
-    tss.gs = 0x00;
-    tss.ldt = 0x00;
-    tss.trap = 0x00;
-    tss.iobase = 0x00;
+    s_tss.esp0 = 0x00;
+    s_tss.ss0 = 0x00;
+    s_tss.backlink = 0x00;
+    s_tss.esp1 = 0x00;
+    s_tss.ss1 = 0x00;
+    s_tss.esp2 = 0x00;
+    s_tss.ss2 = 0x00;
+    s_tss.cr3 = 0x00;
+    s_tss.eip = 0x00;
+    s_tss.flags = 0x00;
+    s_tss.eax = 0x00;
+    s_tss.ecx = 0x00;
+    s_tss.edx = 0x00;
+    s_tss.ebx = 0x00;
+    s_tss.esp = 0x00;
+    s_tss.ebp = 0x00;
+    s_tss.esi = 0x00;
+    s_tss.edi = 0x00;
+    s_tss.es = 0x00;
+    s_tss.cs = 0x00;
+    s_tss.ss = 0x00;
+    s_tss.ds = 0x00;
+    s_tss.fs = 0x00;
+    s_tss.gs = 0x00;
+    s_tss.ldt = 0x00;
+    s_tss.trap = 0x00;
+    s_tss.iobase = 0x00;
 }
 
 int get_display_pose() { return display_pose; }

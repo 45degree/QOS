@@ -10,3 +10,8 @@ compile_commands.json
 .xmake/
 .vscode/
 build/
+
+
+# 虚拟机用到的硬盘文件
+80m.img
+80m.img.lock

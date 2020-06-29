@@ -9,7 +9,7 @@
 #include "sys_call.h"
 
 static u8 hd_status = 0; //!< 硬盘状态
-static u8 hd_buffer[SECTOR_SIZE * 2];
+static u8 hd_buffer[SECTOR_SIZE * 2]; //!< 硬盘缓冲区
 
 static struct iden_info_ascii {
         int idx;
@@ -77,7 +77,7 @@ static void print_hd_info(u16* hdinfo) {
     printk("LBA48 supported: %s\n", (cmd_set_supported & 0x0400) ? "Yes" : "No");
 
     int sectors = ((int)hdinfo[61] << 16) + hdinfo[60];
-    printk("HD size: %xMB\n", sectors * 512 / 1000000);
+    printk("HD size: %dMB\n", sectors * 512 / 1000000);
 }
 
 static void interrupt_wait() {
@@ -87,7 +87,7 @@ static void interrupt_wait() {
 
 void init_hd() {
     u8* numOfDisk = (u8*)(0x475);
-    printk("the num of Disk is %x\n", *numOfDisk);
+    printk("the num of Disk is %d\n", *numOfDisk);
 
     put_irq_handler(AT_WINI_IRQ, hd_handler);
     enable_irq(CASCADE_IRQ);
@@ -107,4 +107,18 @@ void hd_identify(int driver) {
     interrupt_wait();
     port_read(REG_DATA, hd_buffer, SECTOR_SIZE);
     print_hd_info((u16*) hd_buffer);
+}
+
+void read_date_from_dh(int driver, int sector, char *buffer) {
+    struct hd_cmd cmd;
+    cmd.features = 0;
+    cmd.count = 1;
+    cmd.lba_low = sector & 0xFF;
+    cmd.lba_mid = (sector >> 8) & 0xFF;
+    cmd.lba_high = (sector >> 16) & 0xFF;
+    cmd.device = MAKE_DEVICE_REG(0, driver, 0);
+    cmd.command = ATA_READ;
+    hd_cmd_out(&cmd);
+    interrupt_wait();
+    port_read(REG_DATA, buffer, SECTOR_SIZE);
 }

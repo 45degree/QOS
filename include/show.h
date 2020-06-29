@@ -30,7 +30,18 @@ extern void display_color_str(const char* str, int TextColor);
 extern void display_int(int num);
 extern void display_clear();
 
-char* itoa(char* str, unsigned int num);
+
+/**
+ * @brief 将数字按照给定的进位制(8, 10, 16)转化成字符串
+ *
+ * @param str 字符串起始位置
+ * @param num 需要转换的字符串
+ * @param radix 转换的进制
+ *
+ * @return 1 成功; 0 radix输入错误
+ */
+int itoa(char* str, int num, unsigned int radix);
+
 #ifdef __cplusplus
 };
 #endif

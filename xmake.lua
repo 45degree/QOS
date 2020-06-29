@@ -1,4 +1,4 @@
-set_config("cc", "gcc")
+set_config("cc", "clang")
 set_config("arch", "i386")
 
 target("writebyte")
@@ -12,6 +12,11 @@ target("QOS.img")
     add_deps("bootsector")
     add_deps("Loader")
     set_filename("QOS.img")
+    before_build(function(target)
+        if(not os.exists("/mnt/FlooyDisk")) then
+            os.run("sudo mkdir /mnt/FlooyDisk")
+        end
+    end)
     on_build(function(target)
         import("core.project.project")
         local writebyte_target = project.target("writebyte"):targetfile()

@@ -164,7 +164,7 @@ extern u8 gdt_ptr[6];
  */
 extern u8 idt_ptr[6];
 
-extern struct tss* tss; //!< tss
+extern struct tss s_tss; //!< tss
 
 //*********************** common32_lib.asm中的函数及变量声明 ***************************//
 

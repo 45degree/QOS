@@ -4,7 +4,7 @@ extern gdt_ptr
 extern idt_ptr
 extern global_init
 extern kernel_main
-extern tss
+extern s_tss
 extern p_proc_ready
 extern k_reenter
 
@@ -48,7 +48,7 @@ restart:
     mov  esp, [p_proc_ready]           ; esp指向新进程中存储的寄存器信息
     lldt [esp + P_LDT_SEL]             ; 重新加载新进程的ldt 
     lea  eax, [esp + P_STACKTOP]       ; 将当前进程的进程表顶部保存到tss的esp0处
-    mov  dword [tss + TSS3_S_SP0], eax
+    mov  dword [s_tss + TSS3_S_SP0], eax
 ; 恢复原寄存器的值
 restart_reenter:
     dec  dword[k_reenter]
