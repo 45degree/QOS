@@ -37,9 +37,9 @@ target("QOS.img")
     end)
 
     on_run(function(target)
-        os.run("qemu-system-i386 -hda ./81m.img -S -gdb tcp::1234 -boot a -fda "..target:targetfile().." -serial stdio")
+        os.run("qemu-system-i386 -hda ./81m.img -S -gdb tcp::1234 -boot a -fda "..target:targetfile().." -serial stdio -m 2048")
         -- os.run("qemu-system-i386 -hda ./81m.img -boot a -fda "..target:targetfile().." -serial stdio")
     end)
 target_end()
 
-add_subdirs("init", "kernel", "test", "script")
+add_subdirs("init", "kernel", "script")

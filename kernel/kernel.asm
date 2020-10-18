@@ -12,12 +12,24 @@ global _start
 global save
 global restart
 
+global memARDSbuf
+global memARDScount
+
 [section .bss]
 StackSpace resb 2*1024
 StackTop equ $
 
+[section data]
+memARDSbuf: dd 0
+memARDScount : dd 0
+
 [section .text]
 _start:
+    pop eax
+    mov [memARDSbuf], eax
+    pop eax
+    mov [memARDScount], eax
+
     mov  esp, StackTop
     sgdt [gdt_ptr]       ; 复制gdt寄存器的值到[gtd_ptr]
     call global_init

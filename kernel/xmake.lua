@@ -1,8 +1,8 @@
-add_cflags("-g", "-nostdinc", "-fno-builtin", {force = true})
-
 target("kernel")
     set_kind("object")
     add_includedirs("$(projectdir)/include")
+    add_defines("CONFIG_32")
+    add_cflags("-g", "-nostdinc", "-fno-builtin", {force = true})
 
     add_files("$(projectdir)/kernel/**.c")
 

@@ -21,12 +21,12 @@ void sys_write(char* buf, int len, char* _unused, PROCESS* proc) {
     }
 }
 
-int sys_sendrec(int function, int src_dest, MESSAGE* m, PROCESS* proc) {
+int sys_sendrec(int function, int src_dest, struct message* m, PROCESS* proc) {
     core_assert(k_reenter == 0);
     core_assert((src_dest >= 0 && src_dest < NR_TASK + NR_PROC) || src_dest == ANY || src_dest == INTERRUPT);
     int ret = 0;
     int caller = proc2pid(proc);
-    MESSAGE* mla = (MESSAGE*) va2la(caller, m);
+    struct message* mla = (struct message*) va2la(caller, m);
     mla->source = caller;
 
     core_assert(mla->source != src_dest);
@@ -82,7 +82,7 @@ int sys_printx(int __unused1, int __unused2, char* s, PROCESS* proc) {
 }
 
 int get_ticks() {
-    MESSAGE msg;
+    struct message msg;
     reset_msg(&msg);
     msg.type = GET_TICKS;
     send_recv(BOTH, TASK_SYS, &msg);

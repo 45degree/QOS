@@ -6,15 +6,22 @@ extern "C" {
 #endif
 
 #include "global.h"
+#include "process.h"
 
 #define SENDING   0x02	/* set when proc trying to send */
 #define RECEIVING 0x04	/* set when proc trying to recv */
 #define INVALID_DRIVER -20
 #define INTERRUPT -10
 
-#define SEND 1
-#define RECEIVE 2
-#define BOTH 3 /* BOTH = (SEND | RECEIVE) */
+/**
+ * @brief this is the enum of the message function,
+ *
+ */
+enum msg_function {
+    SEND = 1,
+    RECEIVE,
+    BOTH,
+};
 
 struct mess1 {
 	int m1i1;
@@ -40,7 +47,7 @@ struct mess3 {
 	void* m3p2;
 };
 
-typedef struct {
+struct message {
     int source;
     int type;
     union {
@@ -48,7 +55,7 @@ typedef struct {
         struct mess2 m2;
         struct mess3 m3;
     } u;
-} MESSAGE;
+};
 
 enum msgtype {
     HARD_INT = 1,
@@ -61,13 +68,13 @@ enum msgtype {
     DEV_IOCTL
 };
 
-typedef struct s_proc PROCESS;
+// typedef struct s_proc PROCESS;
 
-int msg_send(PROCESS* current, int dst, MESSAGE* m);
-int msg_receive(PROCESS* current, int src, MESSAGE* m);
-void reset_msg(MESSAGE* msg);
+int msg_send(struct process* current, int dst, struct message* msg);
+int msg_receive(struct process* current, int src, struct message* msg);
+void reset_msg(struct message* msg);
 void inform_int(int task_nr);
-int send_recv(int function, int src_dest, MESSAGE* msg);
+int send_recv(int function, int src_dest, struct message* msg);
 
 #define	RETVAL u.m3.m3i1
 

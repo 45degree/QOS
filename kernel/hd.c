@@ -81,7 +81,7 @@ static void print_hd_info(u16* hdinfo) {
 }
 
 static void interrupt_wait() {
-    MESSAGE message;
+    struct message message;
     send_recv(RECEIVE, INTERRUPT, &message);
 }
 

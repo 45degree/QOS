@@ -10,11 +10,11 @@ BaseOfLoaderPhyAddr     equ BaseOfLoader*10H       ; loader.bin(当前文件)被
 BaseOfStack             equ 0100H                  ; 栈顶位置
 BaseOfKernelFile        equ 06000H                 ; kernel.bin被加载到的内存段地址(kernel.bin的大小不要超过BaseOfKernel-BaseOfLoader)
 OffsetOfKernelFile      equ 0H                     ; kernel.bin被加载到的内存偏移地址
-BaseOfKernelFilePhyAddr	equ	BaseOfKernelFile * 10h ; kernel.bin被加载到的物理内存地址
-KernelEntryPointPhyAddr	equ	030400h
+BaseOfKernelFilePhyAddr equ BaseOfKernelFile * 10h ; kernel.bin被加载到的物理内存地址
+KernelEntryPointPhyAddr equ 030400h
 
-PageDirBase             equ 100000h	               ; 页目录开始地址: 1M
-PageTblBase             equ 101000h	               ; 页表开始地址:   1M + 4K
+PageDirBase             equ 200000h                ; 页目录开始地址: 2M
+PageTblBase             equ 201000h                ; 页表开始地址:   2M + 4K
 
 jmp LABEL_START
 
@@ -76,6 +76,7 @@ MemChkFinish:
     xor dl, dl
     int 13H
 
+; Fat12文件系统中找到kernel.bin文件, 并全部加载到内存当中
 LABEL_SEARCH_IN_ROOT_DIR_BEGIN:
     cmp word [wRootDirSizeForLoop], 0
     jz LABEL_NO_KERNELBIN
@@ -349,6 +350,10 @@ LABEL_PM_START:
     call SetupPaging
     call InitKernel
 
+    ; 传入内存相关信息
+    push dword [ddMCRCount]
+    push dword MemChkBuf
+
     jmp SelectorFlatC:KernelEntryPointPhyAddr ; 正式进入内核
 
 ; ========================================================================
@@ -479,7 +484,7 @@ DispInt:
     mov	 al, 'h'
     push edi
     mov	 edi, [dwDispPos]
-    
+
     push es
     push eax
     mov  ax, SelectorVideo
@@ -654,7 +659,7 @@ MemCpy:
 
 ; ------------------------------------------------------------------------
 ; 函数名: InitKernel
-; 描述:  初始化内核
+; 描述:  初始化内核, 将内核从kernel.bin中提取出来并加载到指定位置
 ; ------------------------------------------------------------------------
 InitKernel:
     xor  esi, esi

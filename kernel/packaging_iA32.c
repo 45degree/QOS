@@ -3,10 +3,11 @@
 //
 
 #include "package_iA32/packaging_iA32.h"
+#include "process.h"
 
 int display_pose = 0;
 
-PROCESS* p_proc_ready = 0; //!< 指向下一个要运行的进程
+struct process* p_proc_ready = 0; //!< 指向下一个要运行的进程
 u32 k_reenter = 0;         //!< 中断重入判断标志
 
 u8 gdt_ptr[6];
@@ -125,4 +126,4 @@ void set_display_pose(int pose) { display_pose = pose; }
 
 PROCESS* get_process_ready() { return p_proc_ready; }
 
-void set_process_ready(PROCESS* process) { p_proc_ready = process; }
+void set_process_ready(struct process* process) { p_proc_ready = process; }

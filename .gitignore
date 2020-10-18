@@ -1,17 +1,24 @@
-doc/
+# Doxygen生成的文档
+Doc/Doxygen
 
 # bochs调试产生的文件
 bx_enh_dbg.ini
 
+# 用于ide和lsp使用的文件
 compile_commands.json
 
+# 生成的中间文件
 .clangd/
 .idea/
 .xmake/
-.vscode/
 build/
 
-
 # 虚拟机用到的硬盘文件
-80m.img
 80m.img.lock
+
+# vim, emacs, vscode 的配置文件
+.vimspector.json
+.projectile
+.vscode/
+
+81m.img

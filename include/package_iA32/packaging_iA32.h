@@ -289,7 +289,7 @@ extern void sys_call();
 // extern int get_ticks();
 extern void write(char* buf, int len);
 extern void printx(char* buf);
-extern int sendrec(int function, int src_dest, MESSAGE* msg);
+extern int sendrec(int function, int src_dest, struct message* msg);
 
 #ifdef __cplusplus
 };

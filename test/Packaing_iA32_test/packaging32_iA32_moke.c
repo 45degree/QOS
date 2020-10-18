@@ -69,7 +69,7 @@ void _display_color_str(const char* str, int TextColor) {
 
 void sys_call() {}
 void write(char* buf, int len) {}
-int sendrec(int function, int src_dest, MESSAGE* msg) {return 0;}
+int sendrec(int function, int src_dest, struct message* msg) {return 0;}
 void printx(char* buf) {}
 
 

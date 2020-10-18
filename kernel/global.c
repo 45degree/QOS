@@ -11,6 +11,7 @@
 #include "interrupt.h"
 #include "package_iA32/packaging_iA32.h"
 #include "show.h"
+#include "mm/page.h"
 
 struct descriptor gdt[GTD_SIZE]; //!< GDT表
 struct gate idt[IDT_SIZE];       //!< idt表, 该表存储相应的中断门调用
@@ -23,7 +24,7 @@ u32 seg2phys(u16 seg) {
 u32 vir2phys(u32 seg_base, u32 vir) { return seg_base + vir; }
 
 /**
- * 重新在c语言中加载gdt和idt, 并初始化8259A
+ * @details 重新在c语言中加载gdt和idt, 并初始化8259A
  * @note 在初始化8259A中一并设置了外部中断处理函数, 但并没有使中断生效。
  * @see init_8259A init_port
  */
@@ -42,6 +43,13 @@ void global_init() {
     // 设置idt
     u32 idt_addr = (u32)&idt;
     set_idt_ptr((const u32*)idt_addr, IDT_SIZE * sizeof(struct gate) - 1);
+
+    // 初始化内存管理
+    set_global_memory_text_start((unsigned int)&_text);
+    set_global_memory_text_end((unsigned int)&_etext);
+    set_global_memory_data_end((unsigned int)&_edata);
+    set_global_memory_brk_end((unsigned int)&_end);
+    init_memory();
 
     display_str("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n -----\"cstart\" begins-----\n");
     init_port();

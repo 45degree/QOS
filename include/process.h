@@ -27,7 +27,7 @@ extern "C" {
 /**
  * @brief 一个进程使用的寄存器的值
  */
-typedef struct s_stackframe {
+typedef struct stackframe {
     u32 gs;
     u32 fs;
     u32 es;
@@ -49,8 +49,8 @@ typedef struct s_stackframe {
 } STACK_FRAME;
 
 /* 进程结构 */
-typedef struct s_proc {
-    STACK_FRAME regs;            //!< 该进程使用的寄存器的值
+typedef struct process {
+    struct stackframe regs;            //!< 该进程使用的寄存器的值
     u16 ldt_sel;                 //!< 指向ldt基址和界限的GDT选择子
     struct descriptor ldts[LDT_SIZE];   //!< 该进程数据段和代码段的ldt局部描述符
     int ticks;                   //!< 进程的时间计数器
@@ -58,12 +58,12 @@ typedef struct s_proc {
     u32 pid;                     //!< 进程PID
     char p_name[16];             //!< 进程名
     int flags;                   //!< 进程是否可运行，flags=0代表可以运行
-    MESSAGE* msg;                //!< 进程接受的消息
+    struct message* msg;                //!< 进程接受的消息
     int recvfrom;                //!< 该进程打算从哪一个进程(PID)中接受信息
     int sendto;                  //!< 该进程打算发送信息到哪一个进程(PID)
     int has_int_msg;             //!< 进程是否在等待中断发生
-    struct s_proc* sending;      //!< 需要给该进程发送消息的进程队列中的第一个进程
-    struct s_proc* next_sending; //!< 需要给该进程发送消息的进程队列中的下一个进程
+    struct process* sending;      //!< 需要给该进程发送消息的进程队列中的第一个进程
+    struct process* next_sending; //!< 需要给该进程发送消息的进程队列中的下一个进程
     int tty;                     //!< 进程运行所在的tty
 } PROCESS;
 

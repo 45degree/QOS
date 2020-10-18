@@ -38,9 +38,9 @@ void sys_write(char* buf, int len, char* unused, PROCESS* proc);
  * @param proc 
  * @return int 
  */
-int sys_printx(int __unused1, int __unused2, char* s, PROCESS* proc);
+int sys_printx(int __unused1, int __unused2, char* s, struct process* proc);
 
-int sys_sendrec(int function, int src_dest, MESSAGE* m, PROCESS* proc);
+int sys_sendrec(int function, int src_dest, struct message* m, struct process* proc);
 
 int get_ticks();
 #ifdef __cplusplus

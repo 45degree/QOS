@@ -36,9 +36,9 @@ static int deadlock(int src, int dest) {
     return 0;
 }
 
-int msg_send(PROCESS* current, int dst, MESSAGE* m) {
-    PROCESS* sender = current;
-    PROCESS* dest = proc_table + dst;
+int msg_send(struct process* current, int dst, struct message* m) {
+    struct process* sender = current;
+    struct process* dest = proc_table + dst;
 
     core_assert(proc2pid(sender) != dst);
 
@@ -49,7 +49,7 @@ int msg_send(PROCESS* current, int dst, MESSAGE* m) {
     if((dest->flags & RECEIVING) && (dest->recvfrom == proc2pid(sender) || dest->recvfrom == ANY)) {
         core_assert(dest->msg);
         core_assert(m);
-        core_memcpy(va2la(dst, dest->msg), va2la(proc2pid(sender), m), sizeof(MESSAGE));
+        core_memcpy(va2la(dst, dest->msg), va2la(proc2pid(sender), m), sizeof(struct message));
         dest->msg = 0;
         dest->flags &= ~RECEIVING;
         dest->recvfrom = NO_TASK;
@@ -89,10 +89,10 @@ int msg_send(PROCESS* current, int dst, MESSAGE* m) {
     return 0;
 }
 
-int msg_receive(PROCESS* current, int src, MESSAGE* m) {
-    PROCESS* who_wanna_recv = current;
-    PROCESS* from = 0;
-    PROCESS* prev = 0;
+int msg_receive(struct process* current, int src, struct message* m) {
+    struct process* who_wanna_recv = current;
+    struct process* from = 0;
+    struct process* prev = 0;
     int copyok = 0;
 
     // 不是自己向自己发送消息
@@ -100,12 +100,12 @@ int msg_receive(PROCESS* current, int src, MESSAGE* m) {
 
     // 是否在等待一个中断事件
     if((who_wanna_recv->has_int_msg) && ((src == ANY) || (src == INTERRUPT))) {
-        MESSAGE msg;
+        struct message msg;
         reset_msg(&msg);
         msg.source = INTERRUPT;
         msg.type = HARD_INT;
         core_assert(m);
-        core_memcpy(va2la(proc2pid(who_wanna_recv), m), &msg, sizeof(MESSAGE));
+        core_memcpy(va2la(proc2pid(who_wanna_recv), m), &msg, sizeof(struct message));
 
         who_wanna_recv->has_int_msg = 0;
         core_assert(who_wanna_recv->flags == 0);
@@ -175,7 +175,7 @@ int msg_receive(PROCESS* current, int src, MESSAGE* m) {
         }
         core_assert(m);
         core_assert(from->msg);
-        core_memcpy(va2la(proc2pid(who_wanna_recv), m), va2la(proc2pid(from), from->msg), sizeof(MESSAGE));
+        core_memcpy(va2la(proc2pid(who_wanna_recv), m), va2la(proc2pid(from), from->msg), sizeof(struct message));
         from->msg = 0;
         from->sendto = NO_TASK;
         from->flags &= ~SENDING;
@@ -198,8 +198,8 @@ int msg_receive(PROCESS* current, int src, MESSAGE* m) {
     return 0;
 }
 
-void reset_msg(MESSAGE* msg) {
-    core_memset(msg, 0, sizeof(MESSAGE));
+void reset_msg(struct message* msg) {
+    core_memset(msg, 0, sizeof(struct message));
 }
 
 void inform_int(int task_nr) {
@@ -226,9 +226,9 @@ void inform_int(int task_nr) {
 }
 
 
-int send_recv(int function, int src_dest, MESSAGE* msg) {
+int send_recv(int function, int src_dest, struct message* msg) {
     int ret = 0;
-    if(function == RECEIVE) core_memset(msg, 0, sizeof(MESSAGE));
+    if(function == RECEIVE) core_memset(msg, 0, sizeof(struct message));
 
     switch (function) {
     case BOTH:

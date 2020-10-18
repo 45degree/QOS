@@ -211,6 +211,11 @@ extern void __stack_chk_fail_local();
 extern struct descriptor gdt[GTD_SIZE]; //!< GDT表
 extern struct gate idt[IDT_SIZE];       //!< idt表, 该表存储相应的中断门调用
 
+extern char _text;
+extern char _etext;
+extern char _edata;
+extern char _end;
+
 #ifdef __cplusplus
 };
 #endif

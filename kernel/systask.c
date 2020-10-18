@@ -7,7 +7,7 @@
 #include "hd.h"
 
 void task_sys() {
-    MESSAGE msg;
+    struct message msg;
     while(1) {
         send_recv(RECEIVE, ANY, &msg);
         int src = msg.source;
@@ -25,7 +25,7 @@ void task_sys() {
 }
 
 void task_hd() {
-    MESSAGE msg;
+    struct message msg;
     init_hd();
 
     while(1) {
@@ -49,7 +49,7 @@ void task_hd() {
 void task_fs() {
     printk("TASK FS begin.\n");
 
-    MESSAGE driver_msg;
+    struct message driver_msg;
     driver_msg.type = DEV_OPEN;
     send_recv(BOTH, TASK_HD, &driver_msg);
     printk("FS");

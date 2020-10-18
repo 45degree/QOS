@@ -25,7 +25,7 @@ int vsprintk(char* buf, const char* fmt, va_list args) {
             p += core_strlen(temp);
             break;
         case 'c':
-            *p++ = va_arg(args, char);
+            *p++ = va_arg(args, int);
             break;
         case 's':
             core_strcpy(p, va_arg(args, char*));

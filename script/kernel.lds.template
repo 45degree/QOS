@@ -4,15 +4,34 @@ SECTIONS
     . = 0x30400;
     .text : 
     {
+        _text = .;
         %s (.text)
         *(.text)
+        _etext = .;
     }
+
+    . = ALIGN(8);
+
     .data :
     {
+        _data = .;
         *(.data)
+        _edata = .;
     }
+
+    .rodata :
+    {
+        _rodata = .;
+        *(.rodata)
+        _erodata = .;
+    }
+
     .bss :
     {
+        _bss = .;
         *(.bss)
+        _ebss = .;
     }
+
+    _end = .;
 }

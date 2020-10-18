@@ -21,7 +21,7 @@ int kernel_main() {
     display_str("-------\"kernel_main\" begins------");
     ticks = 0;
     TASK* p_task = task_table;
-    PROCESS* p_proc = proc_table;
+    struct process* p_proc = proc_table;
     char* p_task_stack = task_stack + STACK_SIZE_TOTAL;
     u16 selector_ldt = selector_ldt_first;
 
