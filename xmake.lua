@@ -42,4 +42,4 @@ target("QOS.img")
     end)
 target_end()
 
-add_subdirs("init", "kernel", "script")
+add_subdirs("init", "kernel", "script", "test")

@@ -14,10 +14,7 @@
 extern "C" {
 #endif
 
-typedef unsigned long long u64;
-typedef unsigned int u32;
-typedef unsigned short u16;
-typedef unsigned char u8;
+#include "type.h"
 
 #define GTD_SIZE 128 //!< GDT描述符的数量
 #define IDT_SIZE 256 //!< LDT描述符的数量
@@ -211,10 +208,10 @@ extern void __stack_chk_fail_local();
 extern struct descriptor gdt[GTD_SIZE]; //!< GDT表
 extern struct gate idt[IDT_SIZE];       //!< idt表, 该表存储相应的中断门调用
 
-extern char _text;
-extern char _etext;
-extern char _edata;
-extern char _end;
+extern op_t _text;
+extern op_t _etext;
+extern op_t _edata;
+extern op_t _end;
 
 #ifdef __cplusplus
 };

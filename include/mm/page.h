@@ -6,51 +6,47 @@
  * @version 0.0.1
  */
 
-#ifndef QOS_MM_PAGE_H
-#define QOS_MM_PAGE_H
+#ifndef _QOS_MM_PAGE_H_
+#define _QOS_MM_PAGE_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#include "type.h"
+
 /**
- * @struct ARDS
  * @brief Address Range Descriptor Structure
  */
 struct ARDS {
-#ifdef CONFIG_32
-    unsigned long long address;
-    unsigned long long length;
-    unsigned int type;
-#else
-    unsigned long address;
-    unsigned long length;
-    unsigned int type;
-#endif
+    u64 address; // 8 bytes
+    u64 length;  // 8 bytes
+    u32 type;    // 4 byte
 } __attribute__((packed));
 
+/**
+ * @brief
+ */
 struct Page {
     struct Zone* parent_zone_struct;
-    unsigned long phy_address;
-    unsigned long attribute;
-    unsigned long reference_count;
-
-    unsigned long age;
+    addr_t phy_address;
+    op_t attribute;
+    op_t reference_count;
+    op_t age;
 };
 
 struct Zone {
     struct Page* pages_group;
-    unsigned long pages_length;
+    op_t pages_length;
 
-    unsigned long zone_start_address;
-    unsigned long zone_end_address;
-    unsigned long zone_length;
-    unsigned long attribute;
+    addr_t zone_start_address;
+    addr_t zone_end_address;
+    op_t zone_length;
+    op_t attribute;
 
-    unsigned long page_used_count;
-    unsigned long page_free_count;
-
-    unsigned long total_page_link;
+    op_t page_used_count;
+    op_t page_free_count;
+    op_t total_page_link;
 
     struct Global_Memory_Descriptor* GMD_struct;
 };
@@ -63,31 +59,39 @@ struct Global_Memory_Descriptor {
     struct ARDS ards[32];
     unsigned long ards_length;
 
-    unsigned long* bits_map;   //!< Physical address space page mapping bitmap
+    op_t* bitmap;              //!< Physical address space page mapping bitmap
     unsigned long bits_size;   //!< Number of physical address space pages
     unsigned long bits_length; //!< Physical address space page mapping bitmap length
 
-    struct Page* page_struct; //!< point to global Page array
+    struct Page* page_struct;  //!< point to global Page array
     unsigned long page_size;   //!< the Page's counts
     unsigned long page_length; //!< the length of the Page array
 
-    struct Zone* zone_struct; //!< point to global Zone array
+    struct Zone* zone_struct;  //!< point to global Zone array
     unsigned long zone_size;   //!< the Zone's counts
     unsigned long zone_length; //!< the length of the Zone array
 
-    unsigned long start_code, end_code, end_data, end_brk;
+    addr_t start_code, end_code, end_data, end_brk;
     unsigned long end_of_struct;
 };
 
 void init_memory();
 
-void set_global_memory_text_start(unsigned int start_position);
+void set_global_memory_text_start(addr_t start_position);
 
-void set_global_memory_text_end(unsigned int end_position);
+void set_global_memory_text_end(addr_t end_position);
 
-void set_global_memory_data_end(unsigned int end_position);
+void set_global_memory_data_end(addr_t end_position);
 
-void set_global_memory_brk_end(unsigned int end_position);
+void set_global_memory_brk_end(addr_t end_position);
+
+#define ALIGN_4BYTE_UP(addr) DIV_ROUND_UP(addr, 4)
+
+#define ALIGN_4K_UP(addr) DIV_ROUND_UP(addr, 1UL << 12)
+
+#define ALIGN_4K_DOWN(addr) (((addr) >> (1UL << 12)) << (1UL << 12))
+
+#define GET_PAGE_COUNT(nr) (nr >> 12)
 
 /**
  * @brief  running on <RING 0> \n
