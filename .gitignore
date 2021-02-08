@@ -11,6 +11,7 @@ compile_commands.json
 .clangd/
 .idea/
 .xmake/
+.cache/
 build/
 
 # 虚拟机用到的硬盘文件

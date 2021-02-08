@@ -14,6 +14,7 @@ extern "C" {
 #endif
 
 #include "type.h"
+#include "bitmap.h"
 
 /**
  * @brief Address Range Descriptor Structure
@@ -94,7 +95,7 @@ void set_global_memory_brk_end(addr_t end_position);
 #define GET_PAGE_COUNT(nr) (nr >> 12)
 
 /**
- * @brief  running on <RING 0> \n
+ * @brief  running on <RING 0>
  *         align the memory address on the upper boundary of 4KB
  * @param  addr the memory address
  * @return aligned memory address
@@ -117,7 +118,18 @@ static inline unsigned int address_4k_align_down(unsigned int addr) {
 
 extern struct Global_Memory_Descriptor memory_management_struct;
 
+/**
+ * @brief this variable is initialized int kernel.asm, this variable reference the
+ *        start address of ARDS array which stored some memory information in it.
+ * @see   kernel.asm
+ */
 extern const struct ARDS* memARDSbuf;
+
+/**
+ * @brief this variable is initialized int kernel.asm, this variable reference the
+ *        length of ARDS array.
+ * @see   kernel.asm
+ */
 extern const int memARDScount;
 
 #ifdef __cplusplus

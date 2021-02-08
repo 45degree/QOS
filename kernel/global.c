@@ -49,7 +49,7 @@ void global_init() {
     set_global_memory_text_end((unsigned int)&_etext);
     set_global_memory_data_end((unsigned int)&_edata);
     set_global_memory_brk_end((unsigned int)&_end);
-    init_memory();
+    /* init_memory(); */
 
     display_str("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n -----\"cstart\" begins-----\n");
     init_port();
